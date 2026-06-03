@@ -1166,7 +1166,135 @@ var AITranslator = (() => {
     }
   }
 
-  return { analyze: analyze, analyzeLocal: analyzeLocal, analyzeRemote: analyzeRemote };
+  /**
+   * 用 LLM 直接转写音频（兜底路径，浏览器 STT 不可用时用）
+   * 通用做法：把音频转 base64 → 调多模态 LLM（豆包/通义/DeepSeek 都支持 audio input）
+   * @param {Blob} audioBlob 录音文件
+   * @param {Object} cfg LLM 配置 {baseUrl, apiKey, model}
+   * @returns {Promise<string>} 转写出的文字
+   */
+  function transcribeAudio(audioBlob, cfg) {
+    if (!cfg || !cfg.baseUrl || !cfg.apiKey) {
+      return Promise.reject(new Error('未配置 AI API，无法转写录音'));
+    }
+    if (!audioBlob) {
+      return Promise.reject(new Error('没有录音数据'));
+    }
+    // Step 1: Blob → base64
+    return blobToBase64(audioBlob).then(function (dataUrl) {
+      // Step 2: 构造多模态 LLM 请求
+      // 大多数 OpenAI-兼容 API 用 audio_url 字段，部分用 input_audio
+      var url = cfg.baseUrl.replace(/\/+$/, '') + '/chat/completions';
+      var body = {
+        model: cfg.model || 'gpt-4o-audio-preview',
+        messages: [
+          {
+            role: 'system',
+            content: '你是语音转写助手。把用户给你的音频逐字转写成中文文字。只输出文字本身，不要任何标点外的解释。'
+          },
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: '请把这段音频转写成文字：' },
+              // 尝试两种格式
+              { type: 'audio_url', audio_url: { url: dataUrl } }
+            ]
+          }
+        ],
+        temperature: 0
+      };
+      return fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + cfg.apiKey
+        },
+        body: JSON.stringify(body)
+      });
+    }).then(function (resp) {
+      if (!resp.ok) {
+        return resp.text().then(function (txt) {
+          // 兼容部分 API（豆包）用 input_audio 格式
+          if (/audio_url|input_audio|format/i.test(txt) && cfg.model) {
+            return retryWithInputAudio(audioBlob, cfg);
+          }
+          throw new Error('转写失败 ' + resp.status + ': ' + txt.slice(0, 200));
+        });
+      }
+      return resp.json();
+    }).then(function (j) {
+      var content = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+      if (!content) throw new Error('AI 返回为空');
+      return content.trim();
+    });
+  }
+
+  function retryWithInputAudio(audioBlob, cfg) {
+    return blobToBase64(audioBlob).then(function (dataUrl) {
+      var url = cfg.baseUrl.replace(/\/+$/, '') + '/chat/completions';
+      var body = {
+        model: cfg.model || 'gpt-4o-audio-preview',
+        messages: [
+          { role: 'system', content: '你是语音转写助手。把音频逐字转写成中文文字。' },
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: '转写这段音频：' },
+              { type: 'input_audio', input_audio: { data: dataUrl, format: 'mp3' } }
+            ]
+          }
+        ],
+        temperature: 0
+      };
+      return fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + cfg.apiKey
+        },
+        body: JSON.stringify(body)
+      }).then(function (resp) {
+        if (!resp.ok) {
+          return resp.text().then(function (txt) {
+            throw new Error('转写失败 ' + resp.status + ': ' + txt.slice(0, 200));
+          });
+        }
+        return resp.json();
+      });
+    }).then(function (j) {
+      var content = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+      if (!content) throw new Error('AI 返回为空');
+      return content.trim();
+    });
+  }
+
+  function blobToBase64(blob) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onloadend = function () { resolve(reader.result); };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  /**
+   * 检查当前 LLM 配置是否支持音频转写
+   * 大部分 OpenAI 兼容多模态模型都支持（gpt-4o-audio-preview / 豆包/通义/DeepSeek 部分模型）
+   */
+  function supportsAudioTranscription(cfg) {
+    if (!cfg || !cfg.apiKey) return false;
+    var m = (cfg.model || '').toLowerCase();
+    // 已知支持音频的模型（粗略判断）
+    return /gpt-4o|audio|doubao|qwen|glm|moonshot|gemini|flash|omni|realtime/i.test(m) || !cfg.model;
+  }
+
+  return {
+    analyze: analyze,
+    analyzeLocal: analyzeLocal,
+    analyzeRemote: analyzeRemote,
+    transcribeAudio: transcribeAudio,
+    supportsAudioTranscription: supportsAudioTranscription
+  };
 })();
 
 
@@ -1379,6 +1507,46 @@ var App = (() => {
       var name = isWechat ? '微信' : isQQ ? 'QQ' : isDingTalk ? '钉钉' : '飞书';
       showEmbeddedBrowserWarning(name);
     }
+
+    // 主动告诉用户"实时转写可能不可用"——这种情况在国内 Android 极常见
+    var hasSTT = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    if (hasSTT) {
+      // 1.5 秒试探：如果 STT 能用就不提示
+      try {
+        var probe = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        probe.lang = 'zh-CN';
+        probe.continuous = false;
+        probe.interimResults = false;
+        var sttWorks = false;
+        probe.onresult = function () { sttWorks = true; };
+        probe.onerror = function () { sttWorks = false; };
+        probe.onend = function () { /* 试探结束 */ };
+        probe.start();
+        setTimeout(function () {
+          try { probe.stop(); } catch (e) {}
+          if (!sttWorks) {
+            showSTTFallbackHint();
+          }
+        }, 1500);
+      } catch (e) {
+        showSTTFallbackHint();
+      }
+    } else {
+      showSTTFallbackHint();
+    }
+  }
+
+  function showSTTFallbackHint() {
+    // 提示用户"实时转写可能不可用"+ "可去设置配 LLM 走录后转写"
+    var box = $('#result-box');
+    box.style.display = 'block';
+    box.innerHTML = '<div class="warn-card">' +
+      '<b>💡 检测到浏览器实时转写不可用</b><br>' +
+      '（常见于国行 Android / 没装 Google 服务的手机）<br><br>' +
+      '<b>解决方案：</b>去 <b>设置 → AI 深度分析</b> 填一个豆包/通义/DeepSeek/OpenAI 的 API Key，' +
+      '我会用 AI 在录音结束后 <b>自动转写录音</b>。' +
+      '<div style="margin-top:8px;">不配 API 也行：<b>直接打字到文本框</b>也能用。</div>' +
+      '</div>';
   }
 
   function showMicDeniedHelp(isIOS, isAndroid, isChrome, isWechat) {
@@ -1434,6 +1602,7 @@ var App = (() => {
   function startRecording() {
     setStatus('正在请求麦克风权限...', '#ff9800');
     $('#rec-mic').classList.add('recording');
+    state.sttEverWorked = false;  // 标记 STT 这次是否工作过
 
     if (!Recorder.isSupported()) {
       showError('当前浏览器不支持录音，请直接打字到上面文本框');
@@ -1443,14 +1612,14 @@ var App = (() => {
 
     Recorder.start({
       onText: function (t) {
-        // 实时把识别文字写进文本框（用户可手动改）
+        state.sttEverWorked = true;  // 收到过文字，STT 工作正常
         $('#transcript').value = t.all || '';
-        // 自动滚动到底
         var ta = $('#transcript');
         ta.scrollTop = ta.scrollHeight;
       },
       onError: function (e) {
-        showError('语音识别提示：' + e.msg);
+        // STT 错误不要 alert（不致命，录音还在进行）
+        console.warn('STT:', e.msg);
       },
       onState: function (s) {
         if (s.state === 'recording') {
@@ -1474,13 +1643,46 @@ var App = (() => {
           clearInterval(state.timer);
           $('#rec-mic').textContent = '🎙️';
           $('#rec-mic').classList.remove('recording');
-          $('#rec-hint').textContent = '已录完，点下方"分析"出方案';
           $('#transcript-card').classList.remove('recording-active');
           $('#live-dot').classList.remove('live');
           $('#transcript-title').textContent = '客户原话（实时转写 / 可手动改）';
           setStatus('已录 ' + s.duration + ' 秒', '#2e7d32');
-          // 自动滚动到分析按钮
-          setTimeout(function () { $('#analyze-btn').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+
+          // 关键逻辑：录完后决定是否要 LLM 转写
+          var existingText = ($('#transcript').value || '').trim();
+          if (existingText) {
+            // STT 实时出了字，直接用
+            $('#rec-hint').textContent = '已录完，点下方"分析"出方案';
+            setTimeout(function () { $('#analyze-btn').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+          } else {
+            // STT 没出字 → 检查是否有 LLM 配置 → 兜底转写
+            Store.getSetting('ai', null).then(function (aiCfg) {
+              if (aiCfg && aiCfg.apiKey && state.audioBlob) {
+                // 用 LLM 转写录音
+                $('#rec-hint').textContent = '正在用 AI 转写录音...';
+                setStatus('🔄 正在用 AI 转写录音...', '#ff9800');
+                AITranslator.transcribeAudio(state.audioBlob, aiCfg).then(function (text) {
+                  if (text) {
+                    $('#transcript').value = text;
+                    setStatus('✅ 转写完成（' + text.length + ' 字）', '#2e7d32');
+                    $('#rec-hint').textContent = '已录完并转写，点下方"分析"出方案';
+                  } else {
+                    setStatus('⚠️ 转写为空，请手动输入', '#ef6c00');
+                    $('#rec-hint').textContent = '请在文本框手动输入客户原话';
+                  }
+                  setTimeout(function () { $('#analyze-btn').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+                }).catch(function (e) {
+                  console.error('LLM 转写失败:', e);
+                  setStatus('⚠️ AI 转写失败：' + e.message.slice(0, 60), '#c62828');
+                  $('#rec-hint').textContent = '请在文本框手动输入客户原话';
+                });
+              } else {
+                // 没有 LLM 配置，提示手动输入
+                setStatus('⚠️ 实时转写未启动，请在文本框手动输入', '#ef6c00');
+                $('#rec-hint').textContent = '请在文本框手动输入客户原话';
+              }
+            });
+          }
         }
       }
     }).catch(function (e) {
