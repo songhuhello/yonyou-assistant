@@ -1407,8 +1407,30 @@ var App = (() => {
     $('#rec-btn').textContent = '🎙️ 开始录音';
     $('#rec-btn').classList.remove('recording');
     $('#stt-warn').style.display = Recorder.isSTTSupported() ? 'none' : 'block';
-    $('#result-box').style.display = 'none';
     $('#rec-stt-text').textContent = '';
+    $('#result-box').style.display = 'none';
+
+    // 检测内嵌浏览器（微信、QQ、企业微信等通常禁用了麦克风/Web Speech）
+    var ua = navigator.userAgent;
+    var isWechat = /MicroMessenger/i.test(ua);
+    var isQQ = /\bQQ\b/i.test(ua) || /QQ\//.test(ua);
+    var isDingTalk = /DingTalk/i.test(ua);
+    var isFeishu = /Lark|Feishu/i.test(ua);
+    var isEmbedded = isWechat || isQQ || isDingTalk || isFeishu;
+    if (isEmbedded) {
+      var browserName = isWechat ? '微信' : isQQ ? 'QQ' : isDingTalk ? '钉钉' : '飞书';
+      $('#rec-status').textContent = '⚠️ 检测到' + browserName + '内嵌浏览器，录音功能可能不可用';
+      $('#rec-btn').textContent = '🎙️ 试试录音（可能失败）';
+      var warnEl = $('#stt-warn');
+      warnEl.style.display = 'block';
+      warnEl.style.background = '#ffebee';
+      warnEl.style.color = '#c62828';
+      warnEl.innerHTML = '⚠️ 你正在用 <b>' + browserName + '</b> 内嵌浏览器打开，<b>麦克风可能被禁用</b>。<br>' +
+        '<b>请按以下方法在系统浏览器打开：</b><br>' +
+        '• iOS: 右上角 ··· → "在Safari中打开"<br>' +
+        '• Android: 右上角 ··· → "在浏览器中打开"<br>' +
+        '• 或把本链接 <b>复制到 Safari / Chrome</b> 打开';
+    }
   }
 
   function renderResult(r) {
@@ -1495,6 +1517,22 @@ var App = (() => {
     var timeEl = $('#rec-time');
     var sttText = $('#rec-stt-text');
 
+    // 重置按钮状态（允许失败后重试）
+    btn.classList.remove('recording');
+    btn.textContent = '⏸️ 启动中...';
+    status.textContent = '🔄 正在请求麦克风权限...';
+
+    // 浏览器不支持时友好降级
+    if (!Recorder.isSupported()) {
+      status.textContent = '❌ 浏览器不支持录音，请在 设置 → 录音 改为手动输入';
+      btn.textContent = '🎙️ 重试';
+      toast('当前浏览器不支持录音，请用手动输入文字模式', 'err');
+      return;
+    }
+    if (!Recorder.isSTTSupported()) {
+      status.textContent = '⚠️ 浏览器不支持语音转文字，但可手动输入';
+    }
+
     Recorder.start({
       onText: function (t) {
         sttText.textContent = t.all || '';
@@ -1502,6 +1540,7 @@ var App = (() => {
       },
       onError: function (e) {
         toast(e.msg, 'warn');
+        status.textContent = '⚠️ ' + e.msg;
       },
       onState: function (s) {
         if (s.state === 'recording') {
@@ -1526,8 +1565,20 @@ var App = (() => {
         }
       }
     }).catch(function (e) {
-      toast(e.message, 'err');
+      // 错误后必须把按钮恢复成可重试状态！
+      btn.classList.remove('recording');
+      btn.textContent = '🎙️ 重试';
       status.textContent = '❌ ' + e.message;
+      var hint = '';
+      if (e.name === 'NotAllowedError' || /denied|permission/i.test(e.message)) {
+        hint = '\n\n请检查：\n1. 浏览器地址栏左侧是否有"麦克风被拒绝"标志\n2. iOS: 设置 → Safari → 麦克风 → 允许\n3. iOS: 设置 → 隐私与安全 → 麦克风 → Safari 打开\n4. Android Chrome: 地址栏🔒图标 → 麦克风 → 允许';
+      } else if (e.name === 'NotFoundError') {
+        hint = '\n\n未检测到麦克风设备，请插入麦克风或用手动输入。';
+      } else if (/secure|https/i.test(e.message)) {
+        hint = '\n\n录音必须在 HTTPS 下工作（公网网址已满足）。';
+      }
+      toast('录音启动失败：' + e.message, 'err');
+      alert('❌ 录音启动失败\n\n' + e.message + hint);
     });
   }
 
