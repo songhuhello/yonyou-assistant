@@ -7,113 +7,114 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="用友助手">
-<title>用友销售助手 · 客户话述翻译</title>
+<title>用友销售助手 · 客户话述实时翻译</title>
 <style>
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; padding: 0; height: 100%; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
-  background: #f4f6fa;
-  color: #1a2233;
-  font-size: 15px;
-  line-height: 1.55;
-  overscroll-behavior-y: contain;
-  padding-bottom: env(safe-area-inset-bottom);
+  background: #f4f6fa; color: #1a2233; font-size: 15px; line-height: 1.55;
+  overscroll-behavior-y: contain; padding-bottom: env(safe-area-inset-bottom);
 }
-
 .app { max-width: 720px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: #fff; }
 
-/* ====== 顶栏 ====== */
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 16px calc(14px + env(safe-area-inset-top));
   padding-top: calc(14px + env(safe-area-inset-top));
   background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
-  color: #fff;
-  position: sticky; top: 0; z-index: 10;
+  color: #fff; position: sticky; top: 0; z-index: 10;
   box-shadow: 0 2px 6px rgba(30,136,229,.2);
 }
 .topbar h1 { margin: 0; font-size: 18px; font-weight: 600; }
 .topbar .sub { font-size: 11px; opacity: .85; margin-top: 2px; }
 
-/* ====== 页面容器 ====== */
 .main { flex: 1; padding: 16px; padding-bottom: 100px; }
 .page { display: none; }
 .page.active { display: block; }
 
-/* ====== 卡片 ====== */
-.card {
-  background: #fff; border-radius: 12px; margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
-  border: 1px solid #eef0f4;
-  overflow: hidden;
-}
-.card.hero { border-color: #1e88e5; background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%); }
-.card.case { background: #fff8e1; border-color: #ffe082; }
-.card-title {
-  font-size: 13px; font-weight: 600; color: #1e88e5;
-  padding: 10px 14px; border-bottom: 1px solid #f0f2f5;
-  background: #fafbfc;
-}
-.card-body { padding: 12px 14px; }
-.card-body.big { font-size: 16px; font-weight: 500; line-height: 1.5; color: #0d47a1; }
-
-/* ====== 徽章 ====== */
-.badge {
-  display: inline-block; padding: 3px 10px; border-radius: 12px;
-  font-size: 11px; font-weight: 500; margin-bottom: 10px;
-}
-.badge-ai { background: #f3e5f5; color: #6a1b9a; }
-.badge-local { background: #e8f5e9; color: #2e7d32; }
-
-/* ====== 录音面板 ====== */
-.rec-panel {
+/* ====== 录音大按钮 ====== */
+.rec-big {
   background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
-  color: #fff; border-radius: 14px; padding: 18px; margin-bottom: 16px;
-  text-align: center; box-shadow: 0 4px 12px rgba(30,136,229,.25);
+  color: #fff; border-radius: 16px; padding: 24px; margin-bottom: 16px;
+  text-align: center; box-shadow: 0 6px 16px rgba(30,136,229,.25);
 }
-.rec-time { font-size: 38px; font-weight: 200; letter-spacing: 2px; margin: 8px 0; font-family: -apple-system, monospace; }
-.rec-status { font-size: 13px; opacity: .9; margin-bottom: 14px; }
-.rec-btn {
-  background: #fff; color: #1e88e5; border: none; padding: 14px 32px;
-  border-radius: 30px; font-size: 16px; font-weight: 600;
-  box-shadow: 0 4px 12px rgba(0,0,0,.15); cursor: pointer;
-  transition: all .15s;
-  min-width: 200px;
+.rec-mic {
+  width: 100px; height: 100px; border-radius: 50%;
+  background: #fff; color: #1e88e5;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 50px; margin: 4px 0 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  cursor: pointer; user-select: none;
+  border: none; transition: all .15s;
+  -webkit-user-select: none; touch-action: manipulation;
 }
-.rec-btn:active { transform: scale(.96); }
-.rec-btn.recording { background: #ff5252; color: #fff; animation: pulse 1.2s infinite; }
-@keyframes pulse { 0%, 100% { box-shadow: 0 4px 12px rgba(255,82,82,.3); } 50% { box-shadow: 0 4px 24px rgba(255,82,82,.6); } }
+.rec-mic:active { transform: scale(.95); }
+.rec-mic.recording {
+  background: #ff5252; color: #fff;
+  animation: pulse 1.2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 4px 12px rgba(255,82,82,.3); }
+  50% { box-shadow: 0 4px 28px rgba(255,82,82,.7); }
+}
+.rec-hint { font-size: 14px; opacity: .95; margin-bottom: 6px; }
+.rec-time { font-size: 36px; font-weight: 200; letter-spacing: 2px; font-family: -apple-system, monospace; }
+.rec-status { font-size: 12px; opacity: .85; min-height: 18px; }
 
-#stt-warn { background: #fff3e0; color: #e65100; font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-top: 10px; display: none; }
-#rec-stt-text { background: rgba(255,255,255,.15); border-radius: 8px; padding: 10px; margin-top: 10px; min-height: 40px; font-size: 13px; line-height: 1.5; text-align: left; max-height: 100px; overflow-y: auto; }
+/* ====== 转写文字区（核心，实时更新）====== */
+.transcript-card { background: #fff; border-radius: 12px; margin-bottom: 12px; border: 2px solid #e3f2fd; box-shadow: 0 2px 4px rgba(0,0,0,.04); overflow: hidden; }
+.transcript-card.recording-active { border-color: #ff5252; }
+.transcript-head { padding: 10px 14px; background: #f5f9ff; border-bottom: 1px solid #e3f2fd; font-size: 12px; color: #1e88e5; font-weight: 500; display: flex; align-items: center; justify-content: space-between; }
+.transcript-head .live-dot { display: inline-block; width: 8px; height: 8px; background: #4caf50; border-radius: 50%; margin-right: 6px; }
+.transcript-head .live-dot.live { background: #ff5252; animation: blink 1s infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+.transcript-area {
+  width: 100%; min-height: 100px; max-height: 240px; overflow-y: auto;
+  border: none; padding: 14px; font-size: 16px; line-height: 1.6;
+  font-family: inherit; outline: none; resize: none; background: #fff;
+  color: #1a2233;
+}
+.transcript-area:empty::before {
+  content: attr(data-placeholder);
+  color: #9aa0a6;
+}
 
-/* ====== 表单 ====== */
-.field { margin-bottom: 12px; }
-.field label { display: block; font-size: 13px; color: #5a6478; margin-bottom: 6px; font-weight: 500; }
-.field input, .field textarea, .field select {
+/* ====== 客户 + 分析按钮 ====== */
+.row { display: flex; gap: 8px; align-items: center; }
+.row .field { flex: 1; }
+.field { margin-bottom: 10px; }
+.field input, .field select, .field textarea {
   width: 100%; padding: 11px 12px; border: 1px solid #dde2eb; border-radius: 8px;
-  font-size: 15px; font-family: inherit; background: #fff;
-  outline: none; transition: border-color .15s;
+  font-size: 15px; font-family: inherit; background: #fff; outline: none;
 }
-.field input:focus, .field textarea:focus, .field select:focus { border-color: #1e88e5; }
-.field textarea { resize: vertical; min-height: 80px; }
+.field input:focus, .field select:focus { border-color: #1e88e5; }
 
-.btn-row { display: flex; gap: 8px; margin-top: 8px; }
 .btn {
-  background: #1e88e5; color: #fff; border: none; padding: 11px 18px;
-  border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; flex: 1;
+  background: #1e88e5; color: #fff; border: none; padding: 13px 18px;
+  border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; flex: 1;
+  transition: opacity .15s;
 }
 .btn:active { opacity: .85; }
+.btn:disabled { background: #b0bec5; opacity: .6; }
+.btn-big { padding: 16px 20px; font-size: 16px; font-weight: 600; }
 .btn-secondary { background: #f0f2f5; color: #5a6478; }
 .btn-warn { background: #ff9800; }
 .btn-danger { background: #e53935; }
 
-/* ====== 产品卡片 ====== */
-.product-card {
-  background: #fafbfc; border-radius: 8px; padding: 12px; margin-bottom: 8px;
-  border-left: 3px solid #1e88e5;
-}
+/* ====== 结果卡片（直接出在下面）====== */
+.card { background: #fff; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #eef0f4; overflow: hidden; }
+.card.hero { border-color: #1e88e5; background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%); }
+.card.case { background: #fff8e1; border-color: #ffe082; }
+.card-title { font-size: 13px; font-weight: 600; color: #1e88e5; padding: 10px 14px; border-bottom: 1px solid #f0f2f5; background: #fafbfc; display: flex; align-items: center; gap: 6px; }
+.card-body { padding: 12px 14px; }
+.card-body.big { font-size: 16px; font-weight: 500; line-height: 1.5; color: #0d47a1; }
+
+.badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+.badge-ai { background: #f3e5f5; color: #6a1b9a; }
+.badge-local { background: #e8f5e9; color: #2e7d32; }
+
+.product-card { background: #fafbfc; border-radius: 8px; padding: 12px; margin-bottom: 8px; border-left: 3px solid #1e88e5; }
 .product-card:last-child { margin-bottom: 0; }
 .product-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
 .rank { background: #1e88e5; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
@@ -124,38 +125,32 @@ body {
 .product-row { font-size: 13px; margin-top: 4px; display: flex; align-items: flex-start; gap: 6px; flex-wrap: wrap; }
 .product-row .label { color: #5a6478; min-width: 36px; font-weight: 500; }
 .mini-chip { display: inline-block; background: #e3f2fd; color: #1565c0; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin: 2px 2px; }
-.kw-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.kw-chip { background: #f0f2f5; color: #5a6478; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
 
 .solution-list, .talking-list { padding-left: 20px; margin: 0; }
 .solution-list li, .talking-list li { margin-bottom: 8px; font-size: 14px; }
 .talking-list li { color: #2e7d32; }
-.warn-card { background: #fff3e0; color: #e65100; padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; }
-.empty { text-align: center; padding: 60px 20px; color: #9aa0a6; font-size: 14px; }
 
-/* ====== 历史 ====== */
-.history-item {
-  background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 10px;
-  border: 1px solid #eef0f4; box-shadow: 0 1px 2px rgba(0,0,0,.04);
-}
+.warn-card { background: #fff3e0; color: #e65100; padding: 12px 14px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; line-height: 1.6; }
+.warn-card b { color: #bf360c; }
+.warn-card ol { margin: 6px 0 0 0; padding-left: 20px; }
+.warn-card li { margin-bottom: 4px; }
+
+/* ====== 历史/设置 列表 ====== */
+.history-item { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 10px; border: 1px solid #eef0f4; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
 .hist-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; flex-wrap: wrap; }
 .hist-time { color: #5a6478; }
 .hist-customer { color: #0d47a1; font-weight: 500; }
-.hist-customer.muted { color: #9aa0a6; font-weight: normal; }
 .hist-plain { font-size: 13px; color: #1a2233; margin-bottom: 6px; line-height: 1.5; }
-.hist-products { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
 .hist-actions { display: flex; gap: 8px; }
 .btn-mini { background: #f0f2f5; border: none; padding: 5px 12px; border-radius: 6px; font-size: 12px; color: #5a6478; cursor: pointer; }
-.btn-mini:active { background: #e0e3e8; }
 .btn-mini.btn-del { background: #ffebee; color: #c62828; }
+.empty { text-align: center; padding: 60px 20px; color: #9aa0a6; font-size: 14px; }
 
-/* ====== 设置 ====== */
 .set-section { margin-bottom: 24px; }
 .set-section h3 { font-size: 15px; margin: 0 0 10px 0; color: #1a2233; }
 .set-section .desc { font-size: 12px; color: #5a6478; margin-bottom: 12px; line-height: 1.5; }
 .set-section .desc code { background: #f0f2f5; padding: 1px 5px; border-radius: 3px; font-size: 11px; color: #c2185b; }
 
-/* ====== 底栏 ====== */
 .tabbar {
   position: fixed; bottom: 0; left: 0; right: 0;
   background: #fff; border-top: 1px solid #eef0f4;
@@ -163,14 +158,10 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 5; box-shadow: 0 -2px 8px rgba(0,0,0,.04);
 }
-.tab {
-  flex: 1; padding: 10px 0; text-align: center; cursor: pointer;
-  color: #9aa0a6; font-size: 11px; transition: color .15s;
-}
+.tab { flex: 1; padding: 10px 0; text-align: center; cursor: pointer; color: #9aa0a6; font-size: 11px; }
 .tab .icon { font-size: 22px; display: block; margin-bottom: 2px; }
 .tab.active { color: #1e88e5; }
 
-/* ====== Toast ====== */
 .toast {
   position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
   background: rgba(0,0,0,.82); color: #fff; padding: 10px 20px; border-radius: 20px;
@@ -182,11 +173,10 @@ body {
 .toast.warn { background: #ef6c00; }
 .toast.err { background: #c62828; }
 
-/* ====== 响应式 ====== */
 @media (max-width: 360px) {
   .topbar h1 { font-size: 16px; }
+  .rec-mic { width: 80px; height: 80px; font-size: 40px; }
   .rec-time { font-size: 30px; }
-  .card-body.big { font-size: 15px; }
 }
 </style>
 </head>
@@ -195,41 +185,39 @@ body {
   <div class="topbar">
     <div>
       <h1>🎙️ 用友销售助手</h1>
-      <div class="sub">客户话述 → 大白话 → 产品 → 方案</div>
+      <div class="sub">听客户说 → 大白话 → 用友产品 → 解决方案</div>
     </div>
   </div>
 
   <div class="main">
-    <!-- 录音页 -->
-    <div class="page active" id="page-record">
-      <div class="rec-panel">
+    <!-- 主页：录音 + 实时文字 + 一键分析 -->
+    <div class="page active" id="page-home">
+      <div class="rec-big">
+        <button class="rec-mic" id="rec-mic" type="button">🎙️</button>
         <div class="rec-time" id="rec-time">00:00</div>
+        <div class="rec-hint" id="rec-hint">点上方话筒开始录音</div>
         <div class="rec-status" id="rec-status">准备就绪</div>
-        <button class="rec-btn" id="rec-btn">🎙️ 开始录音</button>
-        <div id="rec-stt-text"></div>
-        <div id="stt-warn">⚠️ 当前浏览器不支持实时语音转写，请用 Chrome / Safari / Edge，或手动输入文字</div>
       </div>
 
-      <div class="card">
-        <div class="card-title">👤 客户信息（可选）</div>
-        <div class="card-body">
-          <div class="field">
-            <input type="text" id="record-customer" placeholder="客户姓名 / 公司">
-          </div>
+      <div class="transcript-card" id="transcript-card">
+        <div class="transcript-head">
+          <span><span class="live-dot" id="live-dot"></span><span id="transcript-title">客户原话（实时转写 / 可手动改）</span></span>
+        </div>
+        <textarea class="transcript-area" id="transcript" data-placeholder="这里会显示客户说的话…
+你也可以直接打字输入" rows="4"></textarea>
+      </div>
+
+      <div class="row" style="margin-bottom: 10px;">
+        <div class="field" style="flex: 1; margin: 0;">
+          <input type="text" id="record-customer" placeholder="👤 客户姓名/公司（可选）">
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">📝 客户原话（可手动补充）</div>
-        <div class="card-body">
-          <div class="field">
-            <textarea id="record-text" placeholder="把客户说的问题打字进来，或直接用上方录音"></textarea>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-secondary" id="clear-btn">清空</button>
-            <button class="btn" id="analyze-text-btn">分析文字</button>
-          </div>
-        </div>
+      <div class="row" style="margin-bottom: 16px;">
+        <button class="btn btn-big" id="analyze-btn">✨ 分析 → 出方案</button>
+      </div>
+      <div class="row" style="margin-bottom: 16px;">
+        <button class="btn btn-secondary" id="clear-btn">清空</button>
       </div>
 
       <div id="result-box"></div>
@@ -267,7 +255,7 @@ body {
           <label>Model</label>
           <input type="text" id="set-model" placeholder="gpt-3.5-turbo / doubao-pro-32k / deepseek-chat">
         </div>
-        <div class="btn-row">
+        <div class="row">
           <button class="btn btn-secondary" id="test-ai-btn">测试连接</button>
           <button class="btn" id="save-ai-btn">保存</button>
         </div>
@@ -293,16 +281,13 @@ body {
 
       <div class="set-section">
         <h3>📊 关于</h3>
-        <div class="desc">
-          v1.0 · 单文件 HTML · 数据存本地浏览器<br>
-          用友销售助手 · 帮你把客户话述翻译成销售能听懂的话
-        </div>
+        <div class="desc">v2.0 · 单文件 HTML · 数据存本地浏览器</div>
       </div>
     </div>
   </div>
 
   <div class="tabbar">
-    <div class="tab active" data-page="record"><span class="icon">🎙️</span>录音</div>
+    <div class="tab active" data-page="home"><span class="icon">🎙️</span>录音</div>
     <div class="tab" data-page="history"><span class="icon">📋</span>历史</div>
     <div class="tab" data-page="settings"><span class="icon">⚙️</span>设置</div>
   </div>
@@ -310,7 +295,6 @@ body {
   <div class="toast" id="toast"></div>
 </div>
 
-<!-- CDN: Dexie for IndexedDB -->
 <script src="https://cdn.jsdelivr.net/npm/dexie@4.0.8/dist/dexie.min.js"></script>
 
 <!-- 合并的 IIFE 模块（必须在 </body> 之前） -->
@@ -1348,89 +1332,206 @@ var Recorder = (() => {
 
 /* ---- app.js ---- */
 /**
- * 主应用 - DOM 操作、页面切换、事件绑定
- *
- * 页面：
- *   - 录音页（#page-record）
- *   - 历史页（#page-history）
- *   - 设置页（#page-settings）
+ * 主应用 - 单页流程：录音 → 实时转写 → 一键分析 → 出方案
  */
 
-// ============== 工具 ==============
 var App = (() => {
-  function $(sel, root) { return (root || document).querySelector(sel); }
-  function $all(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $all(s, r) { return Array.from((r || document).querySelectorAll(s)); }
 
-  function goPage(name) {
-    $all('.page').forEach(function (p) { p.classList.remove('active'); });
-    var target = $('#page-' + name);
-    if (target) target.classList.add('active');
-    $all('.tab').forEach(function (t) { t.classList.remove('active'); });
-    var tab = $('.tab[data-page="' + name + '"]');
-    if (tab) tab.classList.add('active');
-    if (name === 'history') renderHistory();
-    if (name === 'settings') renderSettings();
-    if (name === 'record') resetRecordPage();
+  var state = {
+    isRecording: false,
+    recStartAt: 0,
+    recDuration: 0,
+    timer: null,
+    audioBlob: null,
+    hasAI: false  // 是否配了 AI API
+  };
+
+  function init() {
+    bindEvents();
+    detectEnv();
+    loadSettings();
   }
 
-  function toast(msg, type) {
-    var t = $('#toast');
-    t.textContent = msg;
-    t.className = 'toast show ' + (type || '');
-    setTimeout(function () { t.className = 'toast'; }, 2500);
+  // ============== 浏览器/权限环境检测 ==============
+  function detectEnv() {
+    var ua = navigator.userAgent;
+    var isWechat = /MicroMessenger/i.test(ua);
+    var isQQ = /\bQQ\b/i.test(ua);
+    var isDingTalk = /DingTalk/i.test(ua);
+    var isFeishu = /Lark|Feishu/i.test(ua);
+    var isIOS = /iPhone|iPad|iPod/i.test(ua);
+    var isAndroid = /Android/i.test(ua);
+    var isChrome = /Chrome/i.test(ua) && !/Edg/i.test(ua);
+
+    // 检查麦克风权限状态
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'microphone' }).then(function (result) {
+        if (result.state === 'denied') {
+          showMicDeniedHelp(isIOS, isAndroid, isChrome, isWechat);
+        }
+      }).catch(function () {});
+    }
+
+    // 检测内嵌浏览器
+    if (isWechat || isQQ || isDingTalk || isFeishu) {
+      var name = isWechat ? '微信' : isQQ ? 'QQ' : isDingTalk ? '钉钉' : '飞书';
+      showEmbeddedBrowserWarning(name);
+    }
   }
 
-  function formatTime(ts) {
-    var d = new Date(ts);
-    var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
-    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
-      ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  function showMicDeniedHelp(isIOS, isAndroid, isChrome, isWechat) {
+    var steps = [];
+    if (isIOS) {
+      steps = [
+        'iOS: <b>设置</b> → <b>Safari 浏览器</b> → 滑到底点 <b>"高级"</b> → <b>"网站设置"</b> → <b>"麦克风"</b>',
+        '找到 <code>songhuhello.github.io</code> 改成 <b>"允许"</b>',
+        '回到 Safari 刷新页面（地址栏点 🔄）再点录音'
+      ];
+    } else if (isAndroid) {
+      steps = [
+        'Android Chrome: <b>地址栏左侧的 🔒 小锁图标</b>',
+        '点开后找到 <b>"麦克风"</b>，从"禁止"改成 <b>"允许"</b>',
+        '关掉弹窗回到页面 → 再点 🎙️ 录音'
+      ];
+    } else {
+      steps = [
+        'Chrome: <b>地址栏左侧的 🔒 小锁图标</b>',
+        '点开后找到 <b>"麦克风"</b>，改成 <b>"允许"</b>',
+        '刷新页面（地址栏点 🔄 或按 F5）→ 再点 🎙️ 录音'
+      ];
+    }
+    var box = $('#result-box');
+    box.style.display = 'block';
+    box.innerHTML = '<div class="warn-card">' +
+      '<b>🔒 检测到麦克风权限被拒绝</b><br>' +
+      '浏览器会记住你的"拒绝"决定，不再询问。请按下面步骤手动开启：' +
+      '<ol>' + steps.map(function (s) { return '<li>' + s + '</li>'; }).join('') + '</ol>' +
+      '<div style="margin-top:8px;">修好后，<b>直接打字到上面文本框</b>也能用"分析 → 出方案"功能。</div>' +
+      '</div>';
   }
 
-  function escapeHTML(s) {
-    if (!s) return '';
-    return s.replace(/[<>&"']/g, function (c) {
-      return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c];
+  function showEmbeddedBrowserWarning(name) {
+    var box = $('#result-box');
+    box.style.display = 'block';
+    box.innerHTML = '<div class="warn-card">' +
+      '<b>⚠️ 检测到你在 ' + name + ' 里打开</b><br>' +
+      name + ' 等内嵌浏览器通常 <b>禁用了麦克风</b>，录音可能无效。<br>' +
+      '<b>修法：</b>点右上角 ··· → <b>"在浏览器中打开"</b>（或在 Safari / Chrome 里打开）' +
+      '</div>';
+  }
+
+  // ============== 录音按钮 ==============
+  function onMicClick() {
+    if (state.isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  }
+
+  function startRecording() {
+    setStatus('正在请求麦克风权限...', '#ff9800');
+    $('#rec-mic').classList.add('recording');
+
+    if (!Recorder.isSupported()) {
+      showError('当前浏览器不支持录音，请直接打字到上面文本框');
+      $('#rec-mic').classList.remove('recording');
+      return;
+    }
+
+    Recorder.start({
+      onText: function (t) {
+        // 实时把识别文字写进文本框（用户可手动改）
+        $('#transcript').value = t.all || '';
+        // 自动滚动到底
+        var ta = $('#transcript');
+        ta.scrollTop = ta.scrollHeight;
+      },
+      onError: function (e) {
+        showError('语音识别提示：' + e.msg);
+      },
+      onState: function (s) {
+        if (s.state === 'recording') {
+          state.isRecording = true;
+          state.recStartAt = Date.now();
+          state.audioBlob = null;
+          $('#rec-mic').textContent = '⏹';
+          $('#rec-hint').textContent = '点话筒结束';
+          $('#transcript-card').classList.add('recording-active');
+          $('#live-dot').classList.add('live');
+          $('#transcript-title').textContent = '🔴 正在听（边听边出字）';
+          setStatus('录音中...', '#ff5252');
+          state.timer = setInterval(function () {
+            state.recDuration = Math.floor((Date.now() - state.recStartAt) / 1000);
+            $('#rec-time').textContent = formatSec(state.recDuration);
+          }, 250);
+        } else if (s.state === 'stopped') {
+          state.isRecording = false;
+          state.audioBlob = s.blob;
+          state.recDuration = s.duration;
+          clearInterval(state.timer);
+          $('#rec-mic').textContent = '🎙️';
+          $('#rec-mic').classList.remove('recording');
+          $('#rec-hint').textContent = '已录完，点下方"分析"出方案';
+          $('#transcript-card').classList.remove('recording-active');
+          $('#live-dot').classList.remove('live');
+          $('#transcript-title').textContent = '客户原话（实时转写 / 可手动改）';
+          setStatus('已录 ' + s.duration + ' 秒', '#2e7d32');
+          // 自动滚动到分析按钮
+          setTimeout(function () { $('#analyze-btn').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+        }
+      }
+    }).catch(function (e) {
+      $('#rec-mic').classList.remove('recording');
+      var hint = '';
+      if (e.name === 'NotAllowedError' || /denied|permission/i.test(e.message)) {
+        hint = '请检查浏览器/手机系统里"麦克风"权限是否被关闭';
+      } else if (e.name === 'NotFoundError') {
+        hint = '没检测到麦克风设备';
+      } else if (/secure|https/i.test(e.message)) {
+        hint = '录音必须在 HTTPS 下（公网网址已满足）';
+      }
+      showError('录音启动失败：' + e.message + (hint ? '\n\n' + hint : ''));
+      setStatus('❌ ' + e.message, '#c62828');
     });
   }
 
-  // ============== 录音页 ==============
-  var recordState = { lastResult: null, rawText: '' };
-
-  function resetRecordPage() {
-    if (Recorder.isRecording()) return;
-    recordState = { lastResult: null, rawText: '' };
-    $('#record-text').value = '';
-    $('#record-customer').value = '';
-    $('#rec-time').textContent = '00:00';
-    $('#rec-status').textContent = '准备就绪';
-    $('#rec-btn').textContent = '🎙️ 开始录音';
-    $('#rec-btn').classList.remove('recording');
-    $('#stt-warn').style.display = Recorder.isSTTSupported() ? 'none' : 'block';
-    $('#rec-stt-text').textContent = '';
-    $('#result-box').style.display = 'none';
-
-    // 检测内嵌浏览器（微信、QQ、企业微信等通常禁用了麦克风/Web Speech）
-    var ua = navigator.userAgent;
-    var isWechat = /MicroMessenger/i.test(ua);
-    var isQQ = /\bQQ\b/i.test(ua) || /QQ\//.test(ua);
-    var isDingTalk = /DingTalk/i.test(ua);
-    var isFeishu = /Lark|Feishu/i.test(ua);
-    var isEmbedded = isWechat || isQQ || isDingTalk || isFeishu;
-    if (isEmbedded) {
-      var browserName = isWechat ? '微信' : isQQ ? 'QQ' : isDingTalk ? '钉钉' : '飞书';
-      $('#rec-status').textContent = '⚠️ 检测到' + browserName + '内嵌浏览器，录音功能可能不可用';
-      $('#rec-btn').textContent = '🎙️ 试试录音（可能失败）';
-      var warnEl = $('#stt-warn');
-      warnEl.style.display = 'block';
-      warnEl.style.background = '#ffebee';
-      warnEl.style.color = '#c62828';
-      warnEl.innerHTML = '⚠️ 你正在用 <b>' + browserName + '</b> 内嵌浏览器打开，<b>麦克风可能被禁用</b>。<br>' +
-        '<b>请按以下方法在系统浏览器打开：</b><br>' +
-        '• iOS: 右上角 ··· → "在Safari中打开"<br>' +
-        '• Android: 右上角 ··· → "在浏览器中打开"<br>' +
-        '• 或把本链接 <b>复制到 Safari / Chrome</b> 打开';
+  function stopRecording() {
+    if (Recorder.isRecording()) {
+      Recorder.stop();
     }
+  }
+
+  // ============== 分析 ==============
+  function doAnalyze() {
+    var text = ($('#transcript').value || '').trim();
+    if (!text) {
+      showError('请先录音或打字输入客户原话');
+      return;
+    }
+    setStatus('🔍 分析中...', '#ff9800');
+    Store.getSetting('ai', null).then(function (aiCfg) {
+      AITranslator.analyze(text, aiCfg).then(function (r) {
+        r.rawText = text;
+        r.customer = ($('#record-customer').value || '').trim();
+        r.audioBlob = state.audioBlob;
+        r.duration = state.recDuration;
+        renderResult(r);
+        setStatus('✅ 分析完成', '#2e7d32');
+        // 自动保存（如果填了客户名）
+        if (r.customer) {
+          Store.saveAnalysis(r);
+          toast('已保存到历史', 'ok');
+        }
+        // 自动滚动到结果
+        setTimeout(function () { $('#result-box').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+      }).catch(function (e) {
+        showError('分析失败：' + e.message);
+        setStatus('❌ 分析失败', '#c62828');
+      });
+    });
   }
 
   function renderResult(r) {
@@ -1443,13 +1544,13 @@ var App = (() => {
     var html = '';
 
     if (r.noMatch) {
-      html += '<div class="warn-card">⚠️ 没匹配到常见业务场景</div>';
-      html += '<div class="card"><div class="card-title">客户原话</div><div class="card-body">' + escapeHTML(r.text) + '</div></div>';
+      html += '<div class="warn-card">⚠️ 没匹配到常见业务场景';
       if (r.suggestion && r.suggestion.length) {
-        html += '<div class="card"><div class="card-title">可能用到的词</div><div class="card-body"><div class="kw-chips">' +
-          r.suggestion.map(function (s) { return '<span class="kw-chip">' + escapeHTML(s) + '</span>'; }).join('') + '</div></div></div>';
+        html += '<br>可以试试这些关键词：' + r.suggestion.map(function (s) { return '<code>' + s + '</code>'; }).join(' ');
       }
-      html += '<div class="card"><div class="card-title">建议</div><div class="card-body">在设置里配置 AI API 后可获得深度分析；或补充关键词后重新分析。</div></div>';
+      html += '</div>';
+      html += '<div class="card"><div class="card-title">📝 客户原话</div><div class="card-body">' + escapeHTML(r.text) + '</div></div>';
+      html += '<div class="card"><div class="card-title">💡 建议</div><div class="card-body">在 设置 里配置 AI API 可获得深度分析（豆包/DeepSeek/通义 都支持中文业务话述）。</div></div>';
       box.innerHTML = html;
       return;
     }
@@ -1511,84 +1612,30 @@ var App = (() => {
     box.innerHTML = html;
   }
 
-  function startRecording() {
-    var btn = $('#rec-btn');
-    var status = $('#rec-status');
-    var timeEl = $('#rec-time');
-    var sttText = $('#rec-stt-text');
-
-    // 重置按钮状态（允许失败后重试）
-    btn.classList.remove('recording');
-    btn.textContent = '⏸️ 启动中...';
-    status.textContent = '🔄 正在请求麦克风权限...';
-
-    // 浏览器不支持时友好降级
-    if (!Recorder.isSupported()) {
-      status.textContent = '❌ 浏览器不支持录音，请在 设置 → 录音 改为手动输入';
-      btn.textContent = '🎙️ 重试';
-      toast('当前浏览器不支持录音，请用手动输入文字模式', 'err');
-      return;
-    }
-    if (!Recorder.isSTTSupported()) {
-      status.textContent = '⚠️ 浏览器不支持语音转文字，但可手动输入';
-    }
-
-    Recorder.start({
-      onText: function (t) {
-        sttText.textContent = t.all || '';
-        recordState.rawText = t.all || '';
-      },
-      onError: function (e) {
-        toast(e.msg, 'warn');
-        status.textContent = '⚠️ ' + e.msg;
-      },
-      onState: function (s) {
-        if (s.state === 'recording') {
-          status.textContent = '🔴 录音中...';
-          btn.textContent = '⏹️ 停止并分析';
-          btn.classList.add('recording');
-          var startTs = Date.now();
-          recordState._timer = setInterval(function () {
-            var sec = Math.floor((Date.now() - startTs) / 1000);
-            timeEl.textContent = formatSec(sec);
-          }, 250);
-        } else if (s.state === 'stopped') {
-          clearInterval(recordState._timer);
-          status.textContent = '✅ 已录 ' + s.duration + ' 秒';
-          btn.textContent = '🎙️ 重新录音';
-          btn.classList.remove('recording');
-          timeEl.textContent = formatSec(s.duration);
-          if (!recordState.rawText) {
-            recordState.rawText = $('#record-text').value.trim() || sttText.textContent.trim();
-          }
-          doAnalyze();
-        }
-      }
-    }).catch(function (e) {
-      // 错误后必须把按钮恢复成可重试状态！
-      btn.classList.remove('recording');
-      btn.textContent = '🎙️ 重试';
-      status.textContent = '❌ ' + e.message;
-      var hint = '';
-      if (e.name === 'NotAllowedError' || /denied|permission/i.test(e.message)) {
-        hint = '\n\n请检查：\n1. 浏览器地址栏左侧是否有"麦克风被拒绝"标志\n2. iOS: 设置 → Safari → 麦克风 → 允许\n3. iOS: 设置 → 隐私与安全 → 麦克风 → Safari 打开\n4. Android Chrome: 地址栏🔒图标 → 麦克风 → 允许';
-      } else if (e.name === 'NotFoundError') {
-        hint = '\n\n未检测到麦克风设备，请插入麦克风或用手动输入。';
-      } else if (/secure|https/i.test(e.message)) {
-        hint = '\n\n录音必须在 HTTPS 下工作（公网网址已满足）。';
-      }
-      toast('录音启动失败：' + e.message, 'err');
-      alert('❌ 录音启动失败\n\n' + e.message + hint);
-    });
+  // ============== 工具 ==============
+  function setStatus(msg, color) {
+    var el = $('#rec-status');
+    el.textContent = msg;
+    if (color) el.style.color = color;
   }
 
-  function stopAndAnalyze() {
-    if (Recorder.isRecording()) {
-      Recorder.stop();
-    } else {
-      recordState.rawText = $('#record-text').value.trim();
-      doAnalyze();
-    }
+  function showError(msg) {
+    toast(msg, 'err');
+    alert('❌ ' + msg);
+  }
+
+  function toast(msg, type) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    setTimeout(function () { t.className = 'toast'; }, 2500);
+  }
+
+  function formatTime(ts) {
+    var d = new Date(ts);
+    var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+      ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
   }
 
   function formatSec(s) {
@@ -1597,48 +1644,34 @@ var App = (() => {
     return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
   }
 
-  function doAnalyze() {
-    var text = recordState.rawText || $('#record-text').value.trim();
-    if (!text) { toast('请先录音或输入客户话述', 'warn'); return; }
-    $('#rec-status').textContent = '🔍 分析中...';
-    Store.getSetting('ai', null).then(function (aiCfg) {
-      AITranslator.analyze(text, aiCfg).then(function (r) {
-        recordState.lastResult = r;
-        r.rawText = text;
-        r.customer = $('#record-customer').value.trim();
-        r.audioBlob = Recorder.getBlob();
-        r.duration = Recorder.getDuration();
-        renderResult(r);
-        $('#rec-status').textContent = '✅ 分析完成';
-        if (r.customer) {
-          Store.saveAnalysis(r);
-          toast('已保存到历史', 'ok');
-        } else {
-          toast('分析完成（未填客户姓名，不入库）', 'ok');
-        }
-      }).catch(function (e) {
-        toast('分析失败：' + e.message, 'err');
-        $('#rec-status').textContent = '❌ 分析失败';
-      });
+  function escapeHTML(s) {
+    if (!s) return '';
+    return s.replace(/[<>&"']/g, function (c) {
+      return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
 
-  // ============== 历史页 ==============
+  function goPage(name) {
+    $all('.page').forEach(function (p) { p.classList.remove('active'); });
+    $('#page-' + name).classList.add('active');
+    $all('.tab').forEach(function (t) { t.classList.remove('active'); });
+    $('.tab[data-page="' + name + '"]').classList.add('active');
+    if (name === 'history') renderHistory();
+    if (name === 'settings') renderSettings();
+  }
+
+  // ============== 历史 ==============
   function renderHistory() {
     Store.listAnalyses(100).then(function (list) {
       var box = $('#history-list');
-      if (!list.length) {
-        box.innerHTML = '<div class="empty">暂无历史记录</div>';
-        return;
-      }
+      if (!list.length) { box.innerHTML = '<div class="empty">暂无历史记录<br><br>在"录音"页分析后填上客户姓名会自动保存</div>'; return; }
       box.innerHTML = list.map(function (r) {
-        return '<div class="history-item" data-id="' + r.id + '">' +
+        return '<div class="history-item">' +
           '<div class="hist-head"><span class="hist-time">' + formatTime(r.createdAt) + '</span>' +
-          (r.customer ? '<span class="hist-customer">👤 ' + escapeHTML(r.customer) + '</span>' : '<span class="hist-customer muted">未填客户</span>') +
+          (r.customer ? '<span class="hist-customer">👤 ' + escapeHTML(r.customer) + '</span>' : '<span style="color:#9aa0a6;">未填客户</span>') +
           '<span class="badge ' + (r.fromAI ? 'badge-ai' : 'badge-local') + '">' + (r.fromAI ? 'AI' : '词表') + '</span>' +
           '</div>' +
-          '<div class="hist-plain">' + escapeHTML((r.plain || r.text || '').slice(0, 100)) + '</div>' +
-          (r.products && r.products.length ? '<div class="hist-products">' + r.products.map(function (p) { return '<span class="mini-chip">' + escapeHTML(p) + '</span>'; }).join('') + '</div>' : '') +
+          '<div class="hist-plain">' + escapeHTML((r.plain || r.text || '').slice(0, 120)) + '</div>' +
           '<div class="hist-actions"><button class="btn-mini" data-act="view" data-id="' + r.id + '">查看</button>' +
           '<button class="btn-mini btn-del" data-act="del" data-id="' + r.id + '">删除</button></div>' +
           '</div>';
@@ -1650,16 +1683,14 @@ var App = (() => {
     Store.listAnalyses(200).then(function (list) {
       var r = list.find(function (x) { return x.id === id; });
       if (!r) return;
-      recordState.rawText = r.rawText || r.text || '';
+      $('#transcript').value = r.rawText || r.text || '';
       $('#record-customer').value = r.customer || '';
-      $('#record-text').value = r.rawText || r.text || '';
-      recordState.lastResult = r;
-      goPage('record');
       renderResult(r);
+      goPage('home');
     });
   }
 
-  // ============== 设置页 ==============
+  // ============== 设置 ==============
   function renderSettings() {
     Store.getSetting('ai', null).then(function (ai) {
       ai = ai || {};
@@ -1674,36 +1705,33 @@ var App = (() => {
     });
   }
 
+  function loadSettings() {
+    Store.getSetting('ai', null).then(function (ai) {
+      state.hasAI = !!(ai && ai.apiKey);
+    });
+  }
+
   // ============== 事件绑定 ==============
   function bindEvents() {
-    // tab
+    // Tab
     $all('.tab').forEach(function (t) {
       t.addEventListener('click', function () { goPage(t.dataset.page); });
     });
 
     // 录音
-    $('#rec-btn').addEventListener('click', function () {
-      if (Recorder.isRecording()) {
-        stopAndAnalyze();
-      } else if ($('#record-text').value.trim() || Recorder.getText()) {
-        doAnalyze();
-      } else {
-        startRecording();
-      }
-    });
+    $('#rec-mic').addEventListener('click', onMicClick);
 
-    $('#analyze-text-btn').addEventListener('click', function () {
-      recordState.rawText = $('#record-text').value.trim();
-      doAnalyze();
-    });
+    // 分析
+    $('#analyze-btn').addEventListener('click', doAnalyze);
 
+    // 清空
     $('#clear-btn').addEventListener('click', function () {
-      $('#record-text').value = '';
+      $('#transcript').value = '';
       $('#record-customer').value = '';
       $('#result-box').style.display = 'none';
-      $('#rec-stt-text').textContent = '';
+      $('#result-box').innerHTML = '';
       $('#rec-time').textContent = '00:00';
-      $('#rec-status').textContent = '已清空';
+      setStatus('已清空', '');
     });
 
     // 历史
@@ -1728,9 +1756,7 @@ var App = (() => {
         var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
-        a.href = url;
-        a.download = 'yonyou-sales-export-' + Date.now() + '.json';
-        a.click();
+        a.href = url; a.download = 'yonyou-sales-' + Date.now() + '.json'; a.click();
         URL.revokeObjectURL(url);
         toast('已导出', 'ok');
       });
@@ -1743,7 +1769,7 @@ var App = (() => {
         apiKey: $('#set-apiKey').value.trim(),
         model: $('#set-model').value.trim() || 'gpt-3.5-turbo'
       };
-      Store.setSetting('ai', ai).then(function () { toast('AI 配置已保存', 'ok'); });
+      Store.setSetting('ai', ai).then(function () { toast('AI 配置已保存', 'ok'); state.hasAI = !!ai.apiKey; });
     });
     $('#test-ai-btn').addEventListener('click', function () {
       var ai = {
@@ -1755,9 +1781,7 @@ var App = (() => {
       toast('测试中...', 'ok');
       AITranslator.analyzeRemote('我们公司财务月结要 5 天，想快点', ai).then(function (r) {
         alert('✅ 测试成功\n\n' + r.plain);
-      }).catch(function (e) {
-        alert('❌ 测试失败：' + e.message);
-      });
+      }).catch(function (e) { alert('❌ 测试失败：' + e.message); });
     });
     $('#save-user-btn').addEventListener('click', function () {
       Store.setSetting('user', {
@@ -1765,24 +1789,22 @@ var App = (() => {
         role: $('#set-userRole').value
       }).then(function () { toast('已保存', 'ok'); });
     });
+
+    // 文本框 Enter+Ctrl 触发分析
+    $('#transcript').addEventListener('keydown', function (ev) {
+      if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
+        ev.preventDefault();
+        doAnalyze();
+      }
+    });
   }
 
-  return {
-    init: function () {
-      bindEvents();
-      resetRecordPage();
-    },
-    goPage: goPage,
-    renderResult: renderResult,
-    recordState: function () { return recordState; }
-  };
+  return { init: init, goPage: goPage, renderResult: renderResult, doAnalyze: doAnalyze };
 })();
 
 
 /* === 启动 === */
-Store.init().then(function () {
-  App.init();
-});
+Store.init().then(function () { App.init(); });
 
 /* === INLINE_BUNDLE_END === */
 </script>
