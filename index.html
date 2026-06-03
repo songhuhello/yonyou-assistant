@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1e88e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="用友助手">
+<title>用友销售助手 · 客户话述翻译</title>
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  background: #f4f6fa;
+  color: #1a2233;
+  font-size: 15px;
+  line-height: 1.55;
+  overscroll-behavior-y: contain;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.app { max-width: 720px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: #fff; }
+
+/* ====== 顶栏 ====== */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px calc(14px + env(safe-area-inset-top));
+  padding-top: calc(14px + env(safe-area-inset-top));
+  background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+  color: #fff;
+  position: sticky; top: 0; z-index: 10;
+  box-shadow: 0 2px 6px rgba(30,136,229,.2);
+}
+.topbar h1 { margin: 0; font-size: 18px; font-weight: 600; }
+.topbar .sub { font-size: 11px; opacity: .85; margin-top: 2px; }
+
+/* ====== 页面容器 ====== */
+.main { flex: 1; padding: 16px; padding-bottom: 100px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ====== 卡片 ====== */
+.card {
+  background: #fff; border-radius: 12px; margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border: 1px solid #eef0f4;
+  overflow: hidden;
+}
+.card.hero { border-color: #1e88e5; background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%); }
+.card.case { background: #fff8e1; border-color: #ffe082; }
+.card-title {
+  font-size: 13px; font-weight: 600; color: #1e88e5;
+  padding: 10px 14px; border-bottom: 1px solid #f0f2f5;
+  background: #fafbfc;
+}
+.card-body { padding: 12px 14px; }
+.card-body.big { font-size: 16px; font-weight: 500; line-height: 1.5; color: #0d47a1; }
+
+/* ====== 徽章 ====== */
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 500; margin-bottom: 10px;
+}
+.badge-ai { background: #f3e5f5; color: #6a1b9a; }
+.badge-local { background: #e8f5e9; color: #2e7d32; }
+
+/* ====== 录音面板 ====== */
+.rec-panel {
+  background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+  color: #fff; border-radius: 14px; padding: 18px; margin-bottom: 16px;
+  text-align: center; box-shadow: 0 4px 12px rgba(30,136,229,.25);
+}
+.rec-time { font-size: 38px; font-weight: 200; letter-spacing: 2px; margin: 8px 0; font-family: -apple-system, monospace; }
+.rec-status { font-size: 13px; opacity: .9; margin-bottom: 14px; }
+.rec-btn {
+  background: #fff; color: #1e88e5; border: none; padding: 14px 32px;
+  border-radius: 30px; font-size: 16px; font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15); cursor: pointer;
+  transition: all .15s;
+  min-width: 200px;
+}
+.rec-btn:active { transform: scale(.96); }
+.rec-btn.recording { background: #ff5252; color: #fff; animation: pulse 1.2s infinite; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 4px 12px rgba(255,82,82,.3); } 50% { box-shadow: 0 4px 24px rgba(255,82,82,.6); } }
+
+#stt-warn { background: #fff3e0; color: #e65100; font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-top: 10px; display: none; }
+#rec-stt-text { background: rgba(255,255,255,.15); border-radius: 8px; padding: 10px; margin-top: 10px; min-height: 40px; font-size: 13px; line-height: 1.5; text-align: left; max-height: 100px; overflow-y: auto; }
+
+/* ====== 表单 ====== */
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 13px; color: #5a6478; margin-bottom: 6px; font-weight: 500; }
+.field input, .field textarea, .field select {
+  width: 100%; padding: 11px 12px; border: 1px solid #dde2eb; border-radius: 8px;
+  font-size: 15px; font-family: inherit; background: #fff;
+  outline: none; transition: border-color .15s;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: #1e88e5; }
+.field textarea { resize: vertical; min-height: 80px; }
+
+.btn-row { display: flex; gap: 8px; margin-top: 8px; }
+.btn {
+  background: #1e88e5; color: #fff; border: none; padding: 11px 18px;
+  border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; flex: 1;
+}
+.btn:active { opacity: .85; }
+.btn-secondary { background: #f0f2f5; color: #5a6478; }
+.btn-warn { background: #ff9800; }
+.btn-danger { background: #e53935; }
+
+/* ====== 产品卡片 ====== */
+.product-card {
+  background: #fafbfc; border-radius: 8px; padding: 12px; margin-bottom: 8px;
+  border-left: 3px solid #1e88e5;
+}
+.product-card:last-child { margin-bottom: 0; }
+.product-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+.rank { background: #1e88e5; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+.product-name { font-weight: 600; font-size: 15px; color: #0d47a1; }
+.product-cat { font-size: 11px; color: #5a6478; background: #e3f2fd; padding: 2px 8px; border-radius: 10px; }
+.product-intro { font-size: 13px; color: #455a64; margin-bottom: 6px; }
+.product-intro.muted { color: #999; font-style: italic; }
+.product-row { font-size: 13px; margin-top: 4px; display: flex; align-items: flex-start; gap: 6px; flex-wrap: wrap; }
+.product-row .label { color: #5a6478; min-width: 36px; font-weight: 500; }
+.mini-chip { display: inline-block; background: #e3f2fd; color: #1565c0; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin: 2px 2px; }
+.kw-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.kw-chip { background: #f0f2f5; color: #5a6478; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+
+.solution-list, .talking-list { padding-left: 20px; margin: 0; }
+.solution-list li, .talking-list li { margin-bottom: 8px; font-size: 14px; }
+.talking-list li { color: #2e7d32; }
+.warn-card { background: #fff3e0; color: #e65100; padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; }
+.empty { text-align: center; padding: 60px 20px; color: #9aa0a6; font-size: 14px; }
+
+/* ====== 历史 ====== */
+.history-item {
+  background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 10px;
+  border: 1px solid #eef0f4; box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+.hist-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; flex-wrap: wrap; }
+.hist-time { color: #5a6478; }
+.hist-customer { color: #0d47a1; font-weight: 500; }
+.hist-customer.muted { color: #9aa0a6; font-weight: normal; }
+.hist-plain { font-size: 13px; color: #1a2233; margin-bottom: 6px; line-height: 1.5; }
+.hist-products { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.hist-actions { display: flex; gap: 8px; }
+.btn-mini { background: #f0f2f5; border: none; padding: 5px 12px; border-radius: 6px; font-size: 12px; color: #5a6478; cursor: pointer; }
+.btn-mini:active { background: #e0e3e8; }
+.btn-mini.btn-del { background: #ffebee; color: #c62828; }
+
+/* ====== 设置 ====== */
+.set-section { margin-bottom: 24px; }
+.set-section h3 { font-size: 15px; margin: 0 0 10px 0; color: #1a2233; }
+.set-section .desc { font-size: 12px; color: #5a6478; margin-bottom: 12px; line-height: 1.5; }
+.set-section .desc code { background: #f0f2f5; padding: 1px 5px; border-radius: 3px; font-size: 11px; color: #c2185b; }
+
+/* ====== 底栏 ====== */
+.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #fff; border-top: 1px solid #eef0f4;
+  display: flex; max-width: 720px; margin: 0 auto;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 5; box-shadow: 0 -2px 8px rgba(0,0,0,.04);
+}
+.tab {
+  flex: 1; padding: 10px 0; text-align: center; cursor: pointer;
+  color: #9aa0a6; font-size: 11px; transition: color .15s;
+}
+.tab .icon { font-size: 22px; display: block; margin-bottom: 2px; }
+.tab.active { color: #1e88e5; }
+
+/* ====== Toast ====== */
+.toast {
+  position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.82); color: #fff; padding: 10px 20px; border-radius: 20px;
+  font-size: 13px; z-index: 100; opacity: 0; pointer-events: none;
+  transition: opacity .2s, transform .2s;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.ok { background: #2e7d32; }
+.toast.warn { background: #ef6c00; }
+.toast.err { background: #c62828; }
+
+/* ====== 响应式 ====== */
+@media (max-width: 360px) {
+  .topbar h1 { font-size: 16px; }
+  .rec-time { font-size: 30px; }
+  .card-body.big { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <h1>🎙️ 用友销售助手</h1>
+      <div class="sub">客户话述 → 大白话 → 产品 → 方案</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- 录音页 -->
+    <div class="page active" id="page-record">
+      <div class="rec-panel">
+        <div class="rec-time" id="rec-time">00:00</div>
+        <div class="rec-status" id="rec-status">准备就绪</div>
+        <button class="rec-btn" id="rec-btn">🎙️ 开始录音</button>
+        <div id="rec-stt-text"></div>
+        <div id="stt-warn">⚠️ 当前浏览器不支持实时语音转写，请用 Chrome / Safari / Edge，或手动输入文字</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">👤 客户信息（可选）</div>
+        <div class="card-body">
+          <div class="field">
+            <input type="text" id="record-customer" placeholder="客户姓名 / 公司">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📝 客户原话（可手动补充）</div>
+        <div class="card-body">
+          <div class="field">
+            <textarea id="record-text" placeholder="把客户说的问题打字进来，或直接用上方录音"></textarea>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-secondary" id="clear-btn">清空</button>
+            <button class="btn" id="analyze-text-btn">分析文字</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="result-box"></div>
+    </div>
+
+    <!-- 历史页 -->
+    <div class="page" id="page-history">
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button class="btn btn-warn" id="export-btn">📤 导出 JSON</button>
+        <button class="btn btn-danger" id="clear-history-btn">🗑️ 清空历史</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
+
+    <!-- 设置页 -->
+    <div class="page" id="page-settings">
+      <div class="set-section">
+        <h3>🤖 AI 深度分析（可选）</h3>
+        <div class="desc">
+          配置 OpenAI 兼容 API（豆包 / DeepSeek / 通义千问 / Kimi / OpenAI 都行）。不配也能用，<b>内置词表覆盖 12 个常见业务场景</b>。
+          <br><br>Base URL 例子：
+          <code>https://api.openai.com/v1</code> ·
+          <code>https://ark.cn-beijing.volces.com/api/v3</code> ·
+          <code>https://api.deepseek.com/v1</code>
+        </div>
+        <div class="field">
+          <label>API Base URL</label>
+          <input type="text" id="set-baseUrl" placeholder="https://api.openai.com/v1">
+        </div>
+        <div class="field">
+          <label>API Key</label>
+          <input type="password" id="set-apiKey" placeholder="sk-...">
+        </div>
+        <div class="field">
+          <label>Model</label>
+          <input type="text" id="set-model" placeholder="gpt-3.5-turbo / doubao-pro-32k / deepseek-chat">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="test-ai-btn">测试连接</button>
+          <button class="btn" id="save-ai-btn">保存</button>
+        </div>
+      </div>
+
+      <div class="set-section">
+        <h3>👤 个人信息</h3>
+        <div class="field">
+          <label>姓名</label>
+          <input type="text" id="set-userName" placeholder="您的姓名">
+        </div>
+        <div class="field">
+          <label>角色</label>
+          <select id="set-userRole">
+            <option value="sales">销售</option>
+            <option value="manager">销售经理</option>
+            <option value="consultant">实施顾问</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+        <button class="btn" id="save-user-btn">保存</button>
+      </div>
+
+      <div class="set-section">
+        <h3>📊 关于</h3>
+        <div class="desc">
+          v1.0 · 单文件 HTML · 数据存本地浏览器<br>
+          用友销售助手 · 帮你把客户话述翻译成销售能听懂的话
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab active" data-page="record"><span class="icon">🎙️</span>录音</div>
+    <div class="tab" data-page="history"><span class="icon">📋</span>历史</div>
+    <div class="tab" data-page="settings"><span class="icon">⚙️</span>设置</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<!-- CDN: Dexie for IndexedDB -->
+<script src="https://cdn.jsdelivr.net/npm/dexie@4.0.8/dist/dexie.min.js"></script>
+
+<!-- 合并的 IIFE 模块（必须在 </body> 之前） -->
+<script>
+/* === INLINE_BUNDLE_START === */
+
+/* ---- products.js ---- */
+/**
+ * 用友产品线 + 业务场景映射
+ *
+ * 数据来源：用友公开产品线 + 销售实战常见话述归类
+ * 注意：版本号/模块名按用友公开文档（截至 2026.06）
+ *       实际销售时按当地分公司口径微调
+ */
+
+var YONYOU_PRODUCTS = (() => {
+  // 主产品矩阵：产品名 → 简介 + 适用客户
+  var products = {
+    // ===== 大型/集团 (BIP) =====
+    'BIP 5': {
+      cat: '大型集团云平台',
+      tag: ['AI', '云原生', '大型企业', '央国企', '上市公司'],
+      intro: '用友 BIP 5 商业创新平台，"AI×数据×流程"原生一体，AI 融入 19 类业务流程、2500+ 场景',
+      fit: '营收 50 亿+ 的大型集团、央国企、多组织跨国企业',
+      priceBand: '100 万~数千万/年',
+      modules: ['财务云', '人力云', '供应链', '采购云', '营销云', '制造云', '协同云', 'AI 中台'],
+      typicalPain: '多组织/多法人核算难、跨国合规、数据孤岛、AI 落地难'
+    },
+    'YonBIP': {
+      cat: '大型企业云平台',
+      tag: ['BIP 前代', '大型企业'],
+      intro: 'BIP 上一代版本，部分老客户在用',
+      fit: '存量 BIP 客户升级迁移',
+      priceBand: '存量续费',
+      modules: ['财务', '人力', '供应链', '采购'],
+      typicalPain: '升级 BIP 5 的数据迁移'
+    },
+    // ===== 成长型企业 (U8C/YonSuite) =====
+    'YonSuite': {
+      cat: '成长型/中型企业云',
+      tag: ['云ERP', 'SaaS', '成长型', '中型'],
+      intro: '用友 YonSuite 成长型企业云 ERP，基于 BIP 平台、纯 SaaS、按年订阅',
+      fit: '营收 2000 万-10 亿的成长型企业',
+      priceBand: '5-50 万/年',
+      modules: ['财务', '供应链', 'HR', 'CRM', '费控', 'BI'],
+      typicalPain: '上 ERP 怕重、想云化、想按年付费、IT 养不起'
+    },
+    'U8 Cloud': {
+      cat: '中型企业云 ERP',
+      tag: ['U8C', '中型', '云'],
+      intro: 'U8 Cloud 中型企业云 ERP，U8 系列云化版本',
+      fit: '营收 5000 万-5 亿的中型企业',
+      priceBand: '3-30 万/年',
+      modules: ['财务', '供应链', '生产', 'HR', 'CRM'],
+      typicalPain: '老 U8 升级云、想保留财务+供应链+简单生产'
+    },
+    'U8+': {
+      cat: '中型企业本地 ERP',
+      tag: ['U8', '本地部署', '传统'],
+      intro: 'U8+ 中型企业 ERP 经典版，本地化部署',
+      fit: '传统行业（机械/化工/食品）中型制造企业',
+      priceBand: '10-80 万一次性',
+      modules: ['财务', '供应链', '生产制造', 'HR'],
+      typicalPain: '老 U8 升级、生产排产不准、库存账实不符'
+    },
+    'U9 Cloud': {
+      cat: '中大型/多组织 ERP',
+      tag: ['U9', '多组织', '制造业'],
+      intro: 'U9 Cloud 成长型大企业云 ERP，多组织、多工厂',
+      fit: '营收 5-50 亿的多组织制造业',
+      priceBand: '30-200 万/年',
+      modules: ['财务', '多组织供应链', '多工厂制造', 'PLM', 'MES 对接'],
+      typicalPain: '多工厂协同、跨组织结算、多账套合并'
+    },
+    // ===== 小型/小微 =====
+    'T+ Cloud': {
+      cat: '小型企业云',
+      tag: ['T+', '小微企业', '云财务'],
+      intro: 'T+ Cloud 小微企业云 ERP',
+      fit: '营收 500 万-3000 万的小微企业',
+      priceBand: '3000-3 万/年',
+      modules: ['财务', '进销存', '简单生产'],
+      typicalPain: '手工账想软件化、上系统怕复杂'
+    },
+    '好会计': {
+      cat: '小微/代账',
+      tag: ['小微', '代账公司', '云财务'],
+      intro: '好会计 小微/代账智能云财务 SaaS',
+      fit: '小微企业、代账公司',
+      priceBand: '500-3000 元/年',
+      modules: ['总账', '凭证', '报表', '报税'],
+      typicalPain: '代账效率低、票据整理烦、报税易错'
+    },
+    '易代账': {
+      cat: '代账行业 SaaS',
+      tag: ['代账公司'],
+      intro: '易代账 专为代账公司设计的多客户管理平台',
+      fit: '代账公司（50 户以上）',
+      priceBand: '2000-2 万/年',
+      modules: ['客户管理', '批量记账', '报税', '工商'],
+      typicalPain: '代账客户多、效率低、获客难'
+    },
+    '畅捷通': {
+      cat: '小微全系',
+      tag: ['小微', 'T 系列', '好生意'],
+      intro: '畅捷通 小微企业管理软件（用友旗下）',
+      fit: '小微企业、个体工商户',
+      priceBand: '500-2 万/年',
+      modules: ['财务', '进销存', '门店', '零售'],
+      typicalPain: '门店收银、库存管理、零售分析'
+    },
+    // ===== 行业云 =====
+    'NC Cloud': {
+      cat: '大型本地化',
+      tag: ['NC', '本地', '大型'],
+      intro: 'NC Cloud 大型企业数字化平台，本地化优先',
+      fit: '大型国企/集团、政府',
+      priceBand: '50-500 万一次性',
+      modules: ['财务', '人力', '供应链', '资产'],
+      typicalPain: '信创替换、合规要求、本地部署'
+    },
+    '财务云 YonFin': {
+      cat: '财务专项云',
+      tag: ['财务', '费控', '预算', '合并报表'],
+      intro: '用友财务云 YonFin 大中型企业财务数字化',
+      fit: '财务数字化升级客户',
+      priceBand: '10-100 万/年',
+      modules: ['总账', '应收应付', '固定资产', '费用控制', '预算', '合并报表'],
+      typicalPain: '费控难、合并报表慢、预算执行差'
+    },
+    '人力云 YonHRO': {
+      cat: '人力专项云',
+      tag: ['HR', '人力', '薪酬', '绩效'],
+      intro: '用友人力云 YonHRO 大中型企业人力数字化',
+      fit: '组织复杂、HR 想数字化的企业',
+      priceBand: '10-100 万/年',
+      modules: ['组织人事', '薪酬', '考勤', '绩效', '招聘', '培训'],
+      typicalPain: '组织调整频繁、薪酬计算复杂、绩效落地难'
+    },
+    'PLM Cloud': {
+      cat: '研发管理',
+      tag: ['PLM', '研发', 'BOM'],
+      intro: '用友 PLM Cloud 产品生命周期管理',
+      fit: '制造业研发部门',
+      priceBand: '20-200 万一次性',
+      modules: ['BOM', '图文档', '变更', '项目管理', '工艺'],
+      typicalPain: 'BOM 乱、图文档失控、变更追溯难'
+    },
+    'MES 智能工厂': {
+      cat: '车间执行',
+      tag: ['MES', '车间', '生产执行'],
+      intro: '用友 MES 智能工厂 车间执行系统',
+      fit: '离散制造车间',
+      priceBand: '30-300 万',
+      modules: ['生产排程', '工序管理', '质量管理', '设备联网', '追溯'],
+      typicalPain: '车间黑盒、生产不透明、质量追溯难'
+    },
+    // ===== AI/数据 =====
+    'BIP AI 中台': {
+      cat: 'AI 平台',
+      tag: ['AI', '大模型', '智能体', '数据中台'],
+      intro: '用友 BIP AI 中台 + 本体智能体',
+      fit: '想落地 AI 应用的 BIP 客户',
+      priceBand: '50-500 万/年',
+      modules: ['智能体开发', 'RAG 知识库', 'AI 应用编排', '数据接入'],
+      typicalPain: 'AI 找场景难、企业知识散、数据治理乱'
+    }
+  };
+
+  // 业务场景 → 客户话述（口语）→ 推荐产品 → 方案要点
+  var scenarios = [
+    {
+      id: 'cost-control',
+      keywords: ['费控', '费用', '报销', '差旅', '员工借款', '贴票', '预算', '超预算'],
+      pain: '差旅/费用报销乱、贴票/审核流程长、预算管控不住、月底报销扎堆',
+      plain: '员工出差或办公产生费用，要贴票、找领导签字、再给财务，流程慢、超预算没人管',
+      products: ['财务云 YonFin', 'YonSuite', 'BIP 5'],
+      solution: [
+        '第一步：费控 SaaS（差旅申请→预订→报销→支付）全流程线上化，平均报销周期从 7 天缩到 2 天',
+        '第二步：预算控制前置（超预算自动拦截+预警），预算执行偏差降到 5% 以内',
+        '第三步：发票验真+OCR+电子档案，合规无纸化'
+      ],
+      caseMetric: '某大型企业：报销周期 7→2 天，预算偏差 ±15%→±3%'
+    },
+    {
+      id: 'multi-org',
+      keywords: ['多组织', '多公司', '多法人', '合并报表', '集团', '分子公司', '跨组织', '关联交易'],
+      pain: '集团多组织/多法人核算、分子公司报表合并慢、关联交易抵消复杂、跨组织调拨/结算效率低',
+      plain: '集团下面有几十上百家分子公司/法人，每家单独记账、月底合并报表要 Excel 拼一周、关联交易对账头大',
+      products: ['BIP 5', 'U9 Cloud', 'NC Cloud'],
+      solution: [
+        '第一步：统一多组织架构（法人/利润中心/成本中心 多视角），一本账核算',
+        '第二步：自动合并报表（内部交易自动抵消 + 多币种折算），合并周期从 7 天→1 天',
+        '第三步：跨组织调拨/费用分摊自动化（集团统购统付、内部银行）'
+      ],
+      caseMetric: '某集团：合并报表周期 7 天→1 天，财务共享中心人效 +40%'
+    },
+    {
+      id: 'supply-chain',
+      keywords: ['供应链', '采购', '供应商', '库存', '仓储', '物流', '齐套', '缺料', '呆滞料'],
+      pain: '采购成本高、供应商管理乱、库存账实不符、呆滞料多、缺料停产',
+      plain: '采购不知道找谁最便宜、库存一堆卖不出去的料、真正要用的料又缺、月底盘点账上数对不上',
+      products: ['BIP 5', 'U9 Cloud', 'U8 Cloud', 'YonSuite'],
+      solution: [
+        '第一步：SRM（供应商管理）寻源比价+准入+绩效，采购成本降 5-15%',
+        '第二步：WMS+TMS 仓储物流一体化，账实一致率 99%+',
+        '第三步：MRP 智能齐套分析，缺料预警提前 7 天'
+      ],
+      caseMetric: '某制造业：采购成本 -8%，呆滞库存 -30%，缺料停线 -50%'
+    },
+    {
+      id: 'manufacturing',
+      keywords: ['生产', '车间', '排产', 'MES', '工序', 'BOM', '工艺', '多工厂', '生产计划', 'APS'],
+      pain: '生产排产靠经验、车间黑盒（不知道在做什么、做到哪了）、BOM 变更失控、质量追溯难',
+      plain: '车间主任拍脑袋排产、工人做了啥看不到、客户投诉质量查不出是哪批料的',
+      products: ['MES 智能工厂', 'U9 Cloud', 'PLM Cloud', 'BIP 5'],
+      solution: [
+        '第一步：APS 高级排程（约束理论+有限产能），订单准交率 95%+',
+        '第二步：MES 工序级数据采集（扫码/工位/设备联网），车间透明化',
+        '第三步：PLM-MES-ERP 一体化，BOM/工艺/变更贯通，质量正向/反向追溯'
+      ],
+      caseMetric: '某离散制造：订单准交率 80%→95%，车间人效 +25%'
+    },
+    {
+      id: 'finance-digital',
+      keywords: ['财务', '总账', '凭证', '报表', '应收', '应付', '记账', '会计', '核算', '金税'],
+      pain: '财务月末结账慢、报表出不来、应收应付对不上、税控合规压力大',
+      plain: '月底关账加班到凌晨、Excel 出报表 3 天起、对账时发现客户/供应商账对不上、税务稽查风险',
+      products: ['财务云 YonFin', 'BIP 5', 'U8+', '好会计'],
+      solution: [
+        '第一步：总账+应收应付+资产一体化，月末结账从 5 天→1 天',
+        '第二步：智能报表（自定义/合并/多维度），实时出表',
+        '第三步：金税/银企直连+电子档案，合规无纸化'
+      ],
+      caseMetric: '某上市公司：月结 5→1 天，财务共享人效 +50%'
+    },
+    {
+      id: 'hr-digital',
+      keywords: ['人事', 'HR', '人力', '薪酬', '考勤', '绩效', '招聘', '组织调整', '调薪', '入职离职', '算工资', '发工资', '工资'],
+      pain: 'HR 事务性工作多、薪酬计算复杂（多套规则/跨地区社保）、组织调整频繁、绩效流于形式',
+      plain: 'HR 每天被入职/离职/证明/调薪淹没、每月算工资要 Excel 套公式算两天、绩效打分靠感觉',
+      products: ['人力云 YonHRO', 'BIP 5', 'YonSuite'],
+      solution: [
+        '第一步：组织人事主数据标准化，e-HR 全流程线上（入转调离）',
+        '第二步：智能薪酬（社保/公积金/个税 自动计算），算薪从 2 天→2 小时',
+        '第三步：绩效闭环（KPI/OKR+360 评估+结果应用）'
+      ],
+      caseMetric: '某万人集团：HR 事务性工作 -60%，算薪 2 天→2 小时'
+    },
+    {
+      id: 'small-business',
+      keywords: ['小微', '刚创业', '代账', '代账公司', '个体户', '门店', '进销存', '想记账'],
+      pain: '小微企业没有专职会计/IT、想记账怕复杂、代账公司效率低',
+      plain: '公司就几个人、想找代账/想自己记账但怕麻烦、想上个简单的进销存',
+      products: ['好会计', '易代账', '畅捷通', 'T+ Cloud'],
+      solution: [
+        '第一步：智能云财务（凭证自动/发票 OCR/银行流水自动），记账效率 +5 倍',
+        '第二步：进销存+简单生产（小微一站式）',
+        '第三步：老板看 1 张报表（钱/货/单）'
+      ],
+      caseMetric: '某小微：记账成本 500/月→100/月，老板随时看数'
+    },
+    {
+      id: 'crm',
+      keywords: ['客户管理', 'CRM', '销售管理', '商机', '回款', '合同', '客户跟进'],
+      pain: '客户信息在销售脑子里、销售离职带走客户、商机过程不可见、回款预测不准',
+      plain: '销售跟进到什么程度不知道、客户要回款时找不到合同记录、销售一走客户就没了',
+      products: ['YonSuite', 'BIP 5', 'U8 Cloud'],
+      solution: [
+        '第一步：CRM 全过程管理（线索→商机→合同→回款）',
+        '第二步：客户资产化（联系人/历史/关系图 沉淀到企业）',
+        '第三步：销售自动化（待办/提醒/智能推荐）'
+      ],
+      caseMetric: '某成长型企业：商机转化率 +20%，回款周期 -15 天'
+    },
+    {
+      id: 'ai-empowerment',
+      keywords: ['AI', '大模型', '智能体', '知识库', '智能问答', 'AI 落地', '想用 AI', '提效', 'ai'],
+      pain: 'AI 不知道怎么落地、企业知识散在各部门、客服/财务/HR 重复问题多',
+      plain: '老板说要用 AI 提效，但不知道从哪里下手、问客服/财务/HR 一堆重复问题',
+      products: ['BIP AI 中台', 'BIP 5', 'YonSuite'],
+      solution: [
+        '第一步：BIP AI 中台+本体智能体（开箱即用的财务/HR/供应链 AI 助手）',
+        '第二步：企业知识库+RAG（喂历史文档/制度/案例）',
+        '第三步：业务流程 AI 嵌入（智能审单/智能客服/智能分析）'
+      ],
+      caseMetric: '某央国企：客服问题 70% AI 自动答，财务月结人力 -40%'
+    },
+    {
+      id: 'cross-border',
+      keywords: ['出海', '跨国', '多币种', '多语言', '多税制', '海外', '跨境'],
+      pain: '海外子公司合规难、多币种核算/汇率、跨国税务、本地化',
+      plain: '在海外开了子公司/工厂、不懂当地税务、汇率波动影响利润、海外员工管理',
+      products: ['BIP 5', 'NC Cloud'],
+      solution: [
+        '第一步：多语言/多币种/多税制 全球化架构',
+        '第二步：跨国财务（IFRS/USGAAP/CAS 多准则合并）',
+        '第三步：海外人力（本地化合规）'
+      ],
+      caseMetric: '某出海集团：海外子公司上线周期 12 月→4 月'
+    },
+    {
+      id: 'data-asset',
+      keywords: ['数据中台', 'BI', '数据分析', '数据治理', '数据资产', '指标'],
+      pain: '数据散在 N 个系统、报表需求开发慢、口径不统一、想做数据驱动决策',
+      plain: '老板要个数 IT 要排一周、要个销售分析各系统口径不一样、想做精细化运营没数据基础',
+      products: ['BIP 5', 'BIP AI 中台', '财务云 YonFin'],
+      solution: [
+        '第一步：数据中台（主数据管理+指标体系+数据治理）',
+        '第二步：BI 平台（自助分析+可视化看板）',
+        '第三步：AI 增强分析（异常检测/智能归因/预测）'
+      ],
+      caseMetric: '某集团：报表需求交付 1 周→1 天，决策时效 +3 倍'
+    },
+    {
+      id: 'channel-distribute',
+      keywords: ['渠道', '经销商', '分销', '订货', '终端', '门店管理', '代理商', '返利'],
+      pain: '渠道窜货/价格乱、经销商订货效率低、返利计算复杂、终端数据不透明',
+      plain: '经销商乱卖/乱价/窜货、订货要靠电话/微信、返利算不清/发不爽、终端卖啥不知道',
+      products: ['BIP 5', 'YonSuite', 'U8 Cloud'],
+      solution: [
+        '第一步：DMS 渠道管理（经销商准入/价格管控/窜货预警）',
+        '第二步：B2B 订货平台（经销商 7×24 自助下单）',
+        '第三步：返利自动计算+在线兑付（提升渠道粘性）'
+      ],
+      caseMetric: '某快消：窜货 -60%，经销商订单效率 +5 倍'
+    }
+  ];
+
+  return { products: products, scenarios: scenarios };
+})();
+
+
+/* ---- matcher.js ---- */
+/**
+ * 客户话述 → 业务场景 → 用友产品 匹配引擎
+ *
+ * 三层策略：
+ * 1) 关键词命中（最准）
+ * 2) 模糊语义（jieba-style 简单分词 + 词典）
+ * 3) 兜底：让 AI 介入 / 提示用户补充关键词
+ */
+
+var Matcher = (() => {
+  // 常见口语 → 业务词 同义词典
+  var synonymDict = {
+    '账对不上': '账实不符',
+    '仓库不准': '库存账实不符',
+    '算工资慢': '薪酬计算',
+    '发不出工资': '薪酬',
+    '加班费不对': '薪酬',
+    '社保算错': '薪酬',
+    '仓库乱': '库存',
+    '压货': '呆滞料',
+    '压库存': '呆滞料',
+    '卖不动': '呆滞料',
+    '没钱买料': '供应链',
+    '供应商不行': '供应链',
+    '找供应商': '供应链',
+    '采购贵': '采购',
+    '报销慢': '费控',
+    '贴票烦': '费控',
+    '出差审批': '费控',
+    '出差不批': '费控',
+    '超预算': '预算',
+    '月结慢': '财务',
+    '关账慢': '财务',
+    '做账': '财务',
+    '凭证多': '财务',
+    '出表慢': '报表',
+    '对账烦': '应收',
+    '回款慢': '应收',
+    '客户欠款': '应收',
+    '付钱乱': '应付',
+    '车间黑盒': '车间',
+    '看不到车间': '车间',
+    '排产难': '生产',
+    '插单': '生产',
+    '交期不准': '生产',
+    '物料清单乱': 'BOM',
+    '图纸乱': 'BOM',
+    '变更多': 'BOM',
+    '工时算不准': '工序',
+    '人事杂': 'HR',
+    '入职手续': 'HR',
+    '离职手续': 'HR',
+    '组织架构乱': '组织调整',
+    '绩效流于形式': '绩效',
+    'KPI 没用': '绩效',
+    'OKR 没用': '绩效',
+    '用 AI': 'AI',
+    '想用大模型': 'AI',
+    '智能问答': 'AI',
+    '知识库': 'AI',
+    '智能体': 'AI',
+    '出海': '跨国',
+    '国外': '跨国',
+    '汇率': '多币种',
+    '经销商乱': '渠道',
+    '窜货': '渠道',
+    '乱价': '渠道',
+    '门店多': '门店管理',
+    '加盟商': '渠道',
+    '报表开发慢': 'BI',
+    '看数难': 'BI',
+    '数据不统一': '数据治理',
+    '口径不统一': '数据治理',
+    '上 ERP': 'ERP 升级',
+    '换系统': 'ERP 升级',
+    '系统太老': 'ERP 升级',
+    'U8 太老': 'U8 升级',
+    '想上云': '云化',
+    '上 SaaS': '云化',
+    'IT 养不起': '云化',
+    '合并报表慢': '合并',
+    '分子公司多': '多组织',
+    '多账套': '多组织',
+    '关联交易': '多组织'
+  };
+
+  /**
+   * 主函数：把客户话述变成 3 段式反馈
+   * @param {string} text 客户原文
+   * @param {Array} scenarios 来自 YONYOU_PRODUCTS.scenarios
+   * @returns {{plain: string, products: Array, solution: Array, scenario: Object, hits: Array, confidence: number}}
+   */
+  function analyze(text, scenarios) {
+    if (!text || !text.trim()) {
+      return { error: 'empty', msg: '没有内容可分析' };
+    }
+    var normalized = normalize(text);
+    var hits = [];
+
+    // 1. 同义词替换扩展
+    var expanded = expandSynonyms(normalized);
+
+    // 2. 场景匹配（精确 + 包含两轮）
+    scenarios.forEach(function (sc) {
+      var score = 0;
+      var matchedKws = [];
+      sc.keywords.forEach(function (kw) {
+        // 精确包含
+        if (expanded.indexOf(kw) !== -1) {
+          score += 10;
+          matchedKws.push(kw);
+        } else {
+          // 模糊：关键词中的核心字是否在文本中（兜底"AI""工资"这种短词被拆开的情况）
+          var kwClean = kw.replace(/[A-Za-z]/g, function (m) { return m.toLowerCase(); });
+          if (kwClean.length <= 4) {
+            // 短关键词：拆成字符/音节，匹配其中关键部分
+            var parts = kwClean.split(/([a-z]+|[\u4e00-\u9fa5]+)/).filter(Boolean);
+            var hit = parts.some(function (p) {
+              return p.length >= 1 && (p === 'ai' || p === 'AI') ? normalized.indexOf('ai') !== -1 || normalized.indexOf('AI') !== -1 : p.length >= 2 && normalized.indexOf(p) !== -1;
+            });
+            if (hit) {
+              score += 6;
+              matchedKws.push(kw + '~');
+            }
+          }
+        }
+      });
+      if (score > 0) {
+        hits.push({ scenario: sc, score: score, matchedKws: matchedKws });
+      }
+    });
+
+    // 3. 排序
+    hits.sort(function (a, b) { return b.score - a.score; });
+
+    if (hits.length === 0) {
+      return {
+        noMatch: true,
+        text: text,
+        normalized: normalized,
+        msg: '没匹配到常见业务场景，可补充关键词或使用 AI 深度分析',
+        suggestion: suggestKeywords(normalized)
+      };
+    }
+
+    var top = hits[0];
+    var allProducts = {};
+    var allSolution = [];
+    hits.forEach(function (h) {
+      h.scenario.products.forEach(function (p) {
+        allProducts[p] = (allProducts[p] || 0) + h.score;
+      });
+      allSolution = allSolution.concat(h.scenario.solution);
+    });
+    var sortedProducts = Object.keys(allProducts).sort(function (a, b) {
+      return allProducts[b] - allProducts[a];
+    });
+
+    return {
+      scenario: top.scenario,
+      allScenarios: hits.map(function (h) { return h.scenario; }),
+      plain: top.scenario.plain,
+      pain: top.scenario.pain,
+      products: sortedProducts,
+      productDetails: sortedProducts.map(function (name) {
+        return { name: name, info: YONYOU_PRODUCTS.products[name] };
+      }),
+      solution: dedup(allSolution),
+      matchedKws: top.matchedKws,
+      confidence: Math.min(1, top.score / 30),
+      text: text,
+      normalized: normalized
+    };
+  }
+
+  function normalize(text) {
+    return text
+      .toLowerCase()
+      .replace(/[\s,.，。、；;：:!?？！\-—()（）\[\]【】/\\|]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function expandSynonyms(text) {
+    var result = text;
+    Object.keys(synonymDict).forEach(function (k) {
+      if (result.indexOf(k) !== -1) {
+        result = result + ' ' + synonymDict[k];
+      }
+    });
+    return result;
+  }
+
+  function suggestKeywords(text) {
+    var candidates = [];
+    Object.keys(synonymDict).forEach(function (k) {
+      if (text.length > 1 && k.length > 1) {
+        // 简单字面相似度
+        var common = 0;
+        for (var i = 0; i < k.length; i++) {
+          if (text.indexOf(k[i]) !== -1) common++;
+        }
+        if (common >= Math.ceil(k.length / 2)) {
+          candidates.push(k + '（' + synonymDict[k] + '）');
+        }
+      }
+    });
+    return candidates.slice(0, 5);
+  }
+
+  function dedup(arr) {
+    var seen = {};
+    var out = [];
+    arr.forEach(function (x) {
+      if (!seen[x]) { seen[x] = true; out.push(x); }
+    });
+    return out;
+  }
+
+  return { analyze: analyze, normalize: normalize };
+})();
+
+
+/* ---- store.js ---- */
+/**
+ * 本地存储：录音历史 / 分析历史 / 客户标签
+ * Dexie 优先，localStorage 兜底
+ */
+
+var Store = (() => {
+  var DB_NAME = 'yonyou_sales_assistant';
+  var LS_KEY = 'yonyou_sales_assistant_backup_v1';
+  var db = null;
+  var mode = 'memory';
+
+  function init() {
+    return new Promise(function (resolve) {
+      if (typeof Dexie !== 'undefined') {
+        try {
+          db = new Dexie(DB_NAME);
+          db.version(1).stores({
+            analyses: '++id, createdAt, customer, scenario',
+            recordings: '++id, createdAt, customer, duration',
+            customers: '++id, name, company, phone, note, createdAt',
+            settings: 'key'
+          });
+          mode = 'dexie';
+          resolve('dexie');
+        } catch (e) {
+          console.warn('Dexie init failed, fallback to localStorage', e);
+          mode = 'localstorage';
+          resolve('localstorage');
+        }
+      } else {
+        mode = 'localstorage';
+        resolve('localstorage');
+      }
+    });
+  }
+
+  function saveAnalysis(record) {
+    record.createdAt = record.createdAt || Date.now();
+    return new Promise(function (resolve, reject) {
+      if (mode === 'dexie') {
+        db.analyses.add(record).then(function (id) {
+          record.id = id;
+          backup();
+          resolve(record);
+        }, reject);
+      } else {
+        var list = readLS('analyses') || [];
+        record.id = Date.now();
+        list.unshift(record);
+        writeLS('analyses', list.slice(0, 500));
+        resolve(record);
+      }
+    });
+  }
+
+  function listAnalyses(limit) {
+    limit = limit || 50;
+    return new Promise(function (resolve, reject) {
+      if (mode === 'dexie') {
+        db.analyses.orderBy('createdAt').reverse().limit(limit).toArray().then(resolve, reject);
+      } else {
+        var list = readLS('analyses') || [];
+        resolve(list.slice(0, limit));
+      }
+    });
+  }
+
+  function delAnalysis(id) {
+    return new Promise(function (resolve, reject) {
+      if (mode === 'dexie') {
+        db.analyses.delete(id).then(function () { backup(); resolve(true); }, reject);
+      } else {
+        var list = readLS('analyses') || [];
+        var next = list.filter(function (x) { return x.id !== id; });
+        writeLS('analyses', next);
+        resolve(true);
+      }
+    });
+  }
+
+  function clearAnalyses() {
+    return new Promise(function (resolve, reject) {
+      if (mode === 'dexie') {
+        db.analyses.clear().then(function () { backup(); resolve(true); }, reject);
+      } else {
+        writeLS('analyses', []);
+        resolve(true);
+      }
+    });
+  }
+
+  function saveCustomer(c) {
+    c.createdAt = c.createdAt || Date.now();
+    return new Promise(function (resolve, reject) {
+      if (mode === 'dexie') {
+        db.customers.add(c).then(function (id) {
+          c.id = id;
+          backup();
+          resolve(c);
+        }, reject);
+      } else {
+        var list = readLS('customers') || [];
+        c.id = Date.now();
+        list.unshift(c);
+        writeLS('customers', list.slice(0, 200));
+        resolve(c);
+      }
+    });
+  }
+
+  function listCustomers() {
+    return new Promise(function (resolve, reject) {
+      if (mode === 'dexie') {
+        db.customers.toArray().then(resolve, reject);
+      } else {
+        resolve(readLS('customers') || []);
+      }
+    });
+  }
+
+  function getSetting(key, def) {
+    if (mode === 'dexie') {
+      return db.settings.get(key).then(function (r) { return r ? r.value : def; });
+    }
+    var v = readLS('settings_' + key);
+    return Promise.resolve(v === null ? def : v);
+  }
+
+  function setSetting(key, val) {
+    if (mode === 'dexie') {
+      return db.settings.put({ key: key, value: val }).then(function () { backup(); });
+    }
+    writeLS('settings_' + key, val);
+    return Promise.resolve();
+  }
+
+  function backup() {
+    if (mode !== 'dexie') return Promise.resolve();
+    return Promise.all([
+      db.analyses.toArray(),
+      db.customers.toArray(),
+      db.settings.toArray()
+    ]).then(function (parts) {
+      writeLS('analyses', parts[0]);
+      writeLS('customers', parts[1]);
+      var settings = {};
+      parts[2].forEach(function (s) { settings[s.key] = s.value; });
+      writeLS('settings_all', settings);
+    });
+  }
+
+  function readLS(key) {
+    try {
+      var v = localStorage.getItem(LS_KEY + '_' + key);
+      return v ? JSON.parse(v) : null;
+    } catch (e) { return null; }
+  }
+
+  function writeLS(key, val) {
+    try {
+      localStorage.setItem(LS_KEY + '_' + key, JSON.stringify(val));
+    } catch (e) { console.warn('LS write fail', e); }
+  }
+
+  function exportJSON() {
+    return backup().then(function () {
+      return {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        analyses: readLS('analyses') || [],
+        customers: readLS('customers') || [],
+        settings: readLS('settings_all') || {}
+      };
+    });
+  }
+
+  return {
+    init: init,
+    saveAnalysis: saveAnalysis,
+    listAnalyses: listAnalyses,
+    delAnalysis: delAnalysis,
+    clearAnalyses: clearAnalyses,
+    saveCustomer: saveCustomer,
+    listCustomers: listCustomers,
+    getSetting: getSetting,
+    setSetting: setSetting,
+    backup: backup,
+    exportJSON: exportJSON,
+    get mode() { return mode; }
+  };
+})();
+
+
+/* ---- ai-translator.js ---- */
+/**
+ * AI 翻译器：把客户话述变成销售话术
+ *
+ * 三种模式（按可用性回退）：
+ * 1) 内置词表匹配（Matcher）- 永远可用，零延迟
+ * 2) 用户配置的 LLM API（OpenAI 兼容格式）- 可选
+ * 3) 远程 AI 代理 - 占位（暂不实装）
+ */
+
+var AITranslator = (() => {
+
+  // 1) 内置词表分析
+  function analyzeLocal(text) {
+    var r = Matcher.analyze(text, YONYOU_PRODUCTS.scenarios);
+    return Promise.resolve(r);
+  }
+
+  // 2) LLM API 分析（OpenAI 兼容）
+  function analyzeRemote(text, cfg) {
+    if (!cfg || !cfg.baseUrl || !cfg.apiKey) {
+      return Promise.reject(new Error('AI API 未配置'));
+    }
+    var sysPrompt = buildSystemPrompt();
+    var url = cfg.baseUrl.replace(/\/+$/, '') + '/chat/completions';
+    var body = {
+      model: cfg.model || 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: sysPrompt },
+        { role: 'user', content: '客户原话：' + text }
+      ],
+      temperature: 0.3
+    };
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + cfg.apiKey
+      },
+      body: JSON.stringify(body)
+    }).then(function (resp) {
+      if (!resp.ok) throw new Error('AI ' + resp.status + ' ' + resp.statusText);
+      return resp.json();
+    }).then(function (j) {
+      var content = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+      if (!content) throw new Error('AI 返回为空');
+      return parseAIResponse(content, text);
+    });
+  }
+
+  // 智能主入口
+  function analyze(text, cfg) {
+    if (!cfg || !cfg.apiKey) return analyzeLocal(text);
+    return analyzeRemote(text, cfg).catch(function (e) {
+      console.warn('AI 远程失败，回退本地词表:', e.message);
+      return analyzeLocal(text).then(function (r) {
+        r.aiError = e.message;
+        return r;
+      });
+    });
+  }
+
+  function buildSystemPrompt() {
+    return [
+      '你是用友销售的 AI 助手，任务是把客户口语化的问题翻译成销售能听懂的话。',
+      '',
+      '严格按以下 JSON 格式输出（不要解释、不要 markdown）：',
+      '{',
+      '  "plain": "客户说人话版（一句话讲清楚客户要什么，销售小白也能听懂）",',
+      '  "pain": "客户的痛点（销售视角 1-2 句）",',
+      '  "products": ["推荐用友产品名 1", "推荐用友产品名 2"],',
+      '  "solution": ["解决步骤 1", "解决步骤 2", "解决步骤 3"],',
+      '  "talkingPoints": ["跟客户聊的话术要点 1", "话术要点 2", "话术要点 3"]',
+      '}',
+      '',
+      '用友产品参考：',
+      '- 大型集团：U9 Cloud / BIP 5 / NC Cloud',
+      '- 中型：YonSuite / U8 Cloud / U8+',
+      '- 小微：好会计 / 易代账 / 畅捷通 / T+ Cloud',
+      '- 专项：财务云 YonFin / 人力云 YonHRO / PLM Cloud / MES 智能工厂 / BIP AI 中台',
+      '',
+      '要求：',
+      '1. plain 必须用大白话，禁止用 ERP/MES/PLM 等术语（除非客户自己用了）',
+      '2. solution 必须分步骤、可落地',
+      '3. talkingPoints 要给销售"能直接复制给客户"的话术'
+    ].join('\n');
+  }
+
+  function parseAIResponse(content, originalText) {
+    // 尝试提取 JSON
+    var json = content;
+    var m = content.match(/\{[\s\S]*\}/);
+    if (m) json = m[0];
+    try {
+      var obj = JSON.parse(json);
+      var productDetails = (obj.products || []).map(function (name) {
+        return { name: name, info: YONYOU_PRODUCTS.products[name] || null };
+      });
+      return {
+        fromAI: true,
+        plain: obj.plain || '',
+        pain: obj.pain || '',
+        products: obj.products || [],
+        productDetails: productDetails,
+        solution: obj.solution || [],
+        talkingPoints: obj.talkingPoints || [],
+        text: originalText,
+        confidence: 0.9
+      };
+    } catch (e) {
+      return {
+        fromAI: true,
+        raw: content,
+        text: originalText,
+        error: 'AI 返回格式异常',
+        plain: content
+      };
+    }
+  }
+
+  return { analyze: analyze, analyzeLocal: analyzeLocal, analyzeRemote: analyzeRemote };
+})();
+
+
+/* ---- recorder.js ---- */
+/**
+ * 录音模块：MediaRecorder 录音 + Web Speech API 实时转写（双轨）
+ *
+ * - 录音（mp3/webm blob）→ 留存以便回听
+ * - 实时转写（iOS Safari 14.5+ / Chrome / 安卓）→ 拿到文字稿
+ * - 任一不支持时优雅降级
+ */
+
+var Recorder = (() => {
+  var mediaStream = null;
+  var mediaRecorder = null;
+  var chunks = [];
+  var recStartAt = 0;
+  var recDuration = 0;
+  var currentBlob = null;
+  var recognition = null;
+  var onTextCb = null;
+  var onErrorCb = null;
+  var onStateCb = null;
+  var interimText = '';
+  var finalText = '';
+
+  function isSupported() {
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  }
+  function isSTTSupported() {
+    return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  }
+
+  function start(opts) {
+    opts = opts || {};
+    onTextCb = opts.onText || null;
+    onErrorCb = opts.onError || null;
+    onStateCb = opts.onState || null;
+    chunks = [];
+    finalText = '';
+    interimText = '';
+
+    if (!isSupported()) {
+      return Promise.reject(new Error('当前浏览器不支持录音，请用 Chrome / Safari / Edge'));
+    }
+
+    return navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 }
+    }).then(function (stream) {
+      mediaStream = stream;
+      var mimeType = pickMimeType();
+      try {
+        mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType: mimeType } : undefined);
+      } catch (e) {
+        mediaRecorder = new MediaRecorder(stream);
+      }
+      mediaRecorder.ondataavailable = function (ev) {
+        if (ev.data && ev.data.size > 0) chunks.push(ev.data);
+      };
+      mediaRecorder.onstop = function () {
+        currentBlob = new Blob(chunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+        recDuration = Math.round((Date.now() - recStartAt) / 1000);
+        onStateCb && onStateCb({ state: 'stopped', duration: recDuration, blob: currentBlob });
+      };
+      mediaRecorder.start(100);
+      recStartAt = Date.now();
+      onStateCb && onStateCb({ state: 'recording' });
+
+      // 同时启动 STT
+      startSTT();
+    });
+  }
+
+  function stop() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(function (t) { t.stop(); });
+      mediaStream = null;
+    }
+    if (recognition) {
+      try { recognition.stop(); } catch (e) {}
+      recognition = null;
+    }
+  }
+
+  function pickMimeType() {
+    var candidates = [
+      'audio/mp4',     // iOS Safari
+      'audio/webm;codecs=opus', // Chrome / Firefox
+      'audio/webm',
+      'audio/ogg;codecs=opus'
+    ];
+    if (typeof MediaRecorder === 'undefined') return null;
+    for (var i = 0; i < candidates.length; i++) {
+      if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(candidates[i])) {
+        return candidates[i];
+      }
+    }
+    return null;
+  }
+
+  function startSTT() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      onErrorCb && onErrorCb({ kind: 'stt-unsupported', msg: '当前浏览器不支持语音转文字，请手动输入' });
+      return;
+    }
+    try {
+      recognition = new SR();
+      recognition.lang = 'zh-CN';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = function (ev) {
+        var interim = '';
+        for (var i = ev.resultIndex; i < ev.results.length; i++) {
+          var transcript = ev.results[i][0].transcript;
+          if (ev.results[i].isFinal) {
+            finalText += transcript;
+          } else {
+            interim += transcript;
+          }
+        }
+        interimText = interim;
+        onTextCb && onTextCb({ final: finalText, interim: interimText, all: finalText + interim });
+      };
+      recognition.onerror = function (ev) {
+        if (ev.error === 'no-speech' || ev.error === 'aborted') return; // 静默
+        onErrorCb && onErrorCb({ kind: 'stt-error', msg: '语音识别错误：' + ev.error });
+      };
+      recognition.onend = function () {
+        // iOS Safari 一段时间没声音会自动停，重启
+        if (mediaStream && recognition) {
+          try { recognition.start(); } catch (e) {}
+        }
+      };
+      recognition.start();
+    } catch (e) {
+      onErrorCb && onErrorCb({ kind: 'stt-exception', msg: '启动语音识别失败：' + e.message });
+    }
+  }
+
+  function getText() { return finalText + interimText; }
+  function getBlob() { return currentBlob; }
+  function getDuration() { return recDuration; }
+  function isRecording() { return mediaRecorder && mediaRecorder.state === 'recording'; }
+
+  return {
+    isSupported: isSupported,
+    isSTTSupported: isSTTSupported,
+    start: start,
+    stop: stop,
+    getText: getText,
+    getBlob: getBlob,
+    getDuration: getDuration,
+    isRecording: isRecording
+  };
+})();
+
+
+/* ---- app.js ---- */
+/**
+ * 主应用 - DOM 操作、页面切换、事件绑定
+ *
+ * 页面：
+ *   - 录音页（#page-record）
+ *   - 历史页（#page-history）
+ *   - 设置页（#page-settings）
+ */
+
+// ============== 工具 ==============
+var App = (() => {
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $all(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
+
+  function goPage(name) {
+    $all('.page').forEach(function (p) { p.classList.remove('active'); });
+    var target = $('#page-' + name);
+    if (target) target.classList.add('active');
+    $all('.tab').forEach(function (t) { t.classList.remove('active'); });
+    var tab = $('.tab[data-page="' + name + '"]');
+    if (tab) tab.classList.add('active');
+    if (name === 'history') renderHistory();
+    if (name === 'settings') renderSettings();
+    if (name === 'record') resetRecordPage();
+  }
+
+  function toast(msg, type) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    setTimeout(function () { t.className = 'toast'; }, 2500);
+  }
+
+  function formatTime(ts) {
+    var d = new Date(ts);
+    var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+      ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  function escapeHTML(s) {
+    if (!s) return '';
+    return s.replace(/[<>&"']/g, function (c) {
+      return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // ============== 录音页 ==============
+  var recordState = { lastResult: null, rawText: '' };
+
+  function resetRecordPage() {
+    if (Recorder.isRecording()) return;
+    recordState = { lastResult: null, rawText: '' };
+    $('#record-text').value = '';
+    $('#record-customer').value = '';
+    $('#rec-time').textContent = '00:00';
+    $('#rec-status').textContent = '准备就绪';
+    $('#rec-btn').textContent = '🎙️ 开始录音';
+    $('#rec-btn').classList.remove('recording');
+    $('#stt-warn').style.display = Recorder.isSTTSupported() ? 'none' : 'block';
+    $('#result-box').style.display = 'none';
+    $('#rec-stt-text').textContent = '';
+  }
+
+  function renderResult(r) {
+    var box = $('#result-box');
+    if (!r || r.error) {
+      box.style.display = 'none';
+      return;
+    }
+    box.style.display = 'block';
+    var html = '';
+
+    if (r.noMatch) {
+      html += '<div class="warn-card">⚠️ 没匹配到常见业务场景</div>';
+      html += '<div class="card"><div class="card-title">客户原话</div><div class="card-body">' + escapeHTML(r.text) + '</div></div>';
+      if (r.suggestion && r.suggestion.length) {
+        html += '<div class="card"><div class="card-title">可能用到的词</div><div class="card-body"><div class="kw-chips">' +
+          r.suggestion.map(function (s) { return '<span class="kw-chip">' + escapeHTML(s) + '</span>'; }).join('') + '</div></div></div>';
+      }
+      html += '<div class="card"><div class="card-title">建议</div><div class="card-body">在设置里配置 AI API 后可获得深度分析；或补充关键词后重新分析。</div></div>';
+      box.innerHTML = html;
+      return;
+    }
+
+    if (r.fromAI) {
+      html += '<div class="badge badge-ai">🤖 AI 深度分析</div>';
+    } else {
+      html += '<div class="badge badge-local">📚 内置词表</div>';
+    }
+
+    html += '<div class="card hero"><div class="card-title">💡 客户说人话版</div><div class="card-body big">' + escapeHTML(r.plain) + '</div></div>';
+    html += '<div class="card"><div class="card-title">😣 客户的痛点</div><div class="card-body">' + escapeHTML(r.pain || '—') + '</div></div>';
+
+    if (r.productDetails && r.productDetails.length) {
+      html += '<div class="card"><div class="card-title">🎯 推荐用友产品</div><div class="card-body">';
+      r.productDetails.forEach(function (p, i) {
+        var info = p.info;
+        html += '<div class="product-card">';
+        html += '<div class="product-head"><span class="rank">' + (i + 1) + '</span><span class="product-name">' + escapeHTML(p.name) + '</span>';
+        if (info && info.cat) html += '<span class="product-cat">' + escapeHTML(info.cat) + '</span>';
+        html += '</div>';
+        if (info) {
+          html += '<div class="product-intro">' + escapeHTML(info.intro || '') + '</div>';
+          if (info.fit) html += '<div class="product-row"><span class="label">适用</span>' + escapeHTML(info.fit) + '</div>';
+          if (info.priceBand) html += '<div class="product-row"><span class="label">价位</span>' + escapeHTML(info.priceBand) + '</div>';
+          if (info.modules) {
+            html += '<div class="product-row"><span class="label">模块</span>';
+            info.modules.forEach(function (m) { html += '<span class="mini-chip">' + escapeHTML(m) + '</span>'; });
+            html += '</div>';
+          }
+        } else {
+          html += '<div class="product-intro muted">（未在词表中找到详情，可询问用友分公司）</div>';
+        }
+        html += '</div>';
+      });
+      html += '</div></div>';
+    }
+
+    if (r.solution && r.solution.length) {
+      html += '<div class="card"><div class="card-title">🛠️ 解决步骤</div><div class="card-body"><ol class="solution-list">';
+      r.solution.forEach(function (s) { html += '<li>' + escapeHTML(s) + '</li>'; });
+      html += '</ol></div></div>';
+    }
+
+    if (r.talkingPoints && r.talkingPoints.length) {
+      html += '<div class="card"><div class="card-title">💬 销售话术要点</div><div class="card-body"><ul class="talking-list">';
+      r.talkingPoints.forEach(function (s) { html += '<li>' + escapeHTML(s) + '</li>'; });
+      html += '</ul></div></div>';
+    }
+
+    if (r.caseMetric) {
+      html += '<div class="card case"><div class="card-title">📊 行业参考效果</div><div class="card-body">' + escapeHTML(r.caseMetric) + '</div></div>';
+    }
+
+    if (r.aiError) {
+      html += '<div class="warn-card">⚠️ AI 调用失败，已用词表兜底：' + escapeHTML(r.aiError) + '</div>';
+    }
+
+    box.innerHTML = html;
+  }
+
+  function startRecording() {
+    var btn = $('#rec-btn');
+    var status = $('#rec-status');
+    var timeEl = $('#rec-time');
+    var sttText = $('#rec-stt-text');
+
+    Recorder.start({
+      onText: function (t) {
+        sttText.textContent = t.all || '';
+        recordState.rawText = t.all || '';
+      },
+      onError: function (e) {
+        toast(e.msg, 'warn');
+      },
+      onState: function (s) {
+        if (s.state === 'recording') {
+          status.textContent = '🔴 录音中...';
+          btn.textContent = '⏹️ 停止并分析';
+          btn.classList.add('recording');
+          var startTs = Date.now();
+          recordState._timer = setInterval(function () {
+            var sec = Math.floor((Date.now() - startTs) / 1000);
+            timeEl.textContent = formatSec(sec);
+          }, 250);
+        } else if (s.state === 'stopped') {
+          clearInterval(recordState._timer);
+          status.textContent = '✅ 已录 ' + s.duration + ' 秒';
+          btn.textContent = '🎙️ 重新录音';
+          btn.classList.remove('recording');
+          timeEl.textContent = formatSec(s.duration);
+          if (!recordState.rawText) {
+            recordState.rawText = $('#record-text').value.trim() || sttText.textContent.trim();
+          }
+          doAnalyze();
+        }
+      }
+    }).catch(function (e) {
+      toast(e.message, 'err');
+      status.textContent = '❌ ' + e.message;
+    });
+  }
+
+  function stopAndAnalyze() {
+    if (Recorder.isRecording()) {
+      Recorder.stop();
+    } else {
+      recordState.rawText = $('#record-text').value.trim();
+      doAnalyze();
+    }
+  }
+
+  function formatSec(s) {
+    var m = Math.floor(s / 60);
+    var sec = s % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function doAnalyze() {
+    var text = recordState.rawText || $('#record-text').value.trim();
+    if (!text) { toast('请先录音或输入客户话述', 'warn'); return; }
+    $('#rec-status').textContent = '🔍 分析中...';
+    Store.getSetting('ai', null).then(function (aiCfg) {
+      AITranslator.analyze(text, aiCfg).then(function (r) {
+        recordState.lastResult = r;
+        r.rawText = text;
+        r.customer = $('#record-customer').value.trim();
+        r.audioBlob = Recorder.getBlob();
+        r.duration = Recorder.getDuration();
+        renderResult(r);
+        $('#rec-status').textContent = '✅ 分析完成';
+        if (r.customer) {
+          Store.saveAnalysis(r);
+          toast('已保存到历史', 'ok');
+        } else {
+          toast('分析完成（未填客户姓名，不入库）', 'ok');
+        }
+      }).catch(function (e) {
+        toast('分析失败：' + e.message, 'err');
+        $('#rec-status').textContent = '❌ 分析失败';
+      });
+    });
+  }
+
+  // ============== 历史页 ==============
+  function renderHistory() {
+    Store.listAnalyses(100).then(function (list) {
+      var box = $('#history-list');
+      if (!list.length) {
+        box.innerHTML = '<div class="empty">暂无历史记录</div>';
+        return;
+      }
+      box.innerHTML = list.map(function (r) {
+        return '<div class="history-item" data-id="' + r.id + '">' +
+          '<div class="hist-head"><span class="hist-time">' + formatTime(r.createdAt) + '</span>' +
+          (r.customer ? '<span class="hist-customer">👤 ' + escapeHTML(r.customer) + '</span>' : '<span class="hist-customer muted">未填客户</span>') +
+          '<span class="badge ' + (r.fromAI ? 'badge-ai' : 'badge-local') + '">' + (r.fromAI ? 'AI' : '词表') + '</span>' +
+          '</div>' +
+          '<div class="hist-plain">' + escapeHTML((r.plain || r.text || '').slice(0, 100)) + '</div>' +
+          (r.products && r.products.length ? '<div class="hist-products">' + r.products.map(function (p) { return '<span class="mini-chip">' + escapeHTML(p) + '</span>'; }).join('') + '</div>' : '') +
+          '<div class="hist-actions"><button class="btn-mini" data-act="view" data-id="' + r.id + '">查看</button>' +
+          '<button class="btn-mini btn-del" data-act="del" data-id="' + r.id + '">删除</button></div>' +
+          '</div>';
+      }).join('');
+    });
+  }
+
+  function viewHistory(id) {
+    Store.listAnalyses(200).then(function (list) {
+      var r = list.find(function (x) { return x.id === id; });
+      if (!r) return;
+      recordState.rawText = r.rawText || r.text || '';
+      $('#record-customer').value = r.customer || '';
+      $('#record-text').value = r.rawText || r.text || '';
+      recordState.lastResult = r;
+      goPage('record');
+      renderResult(r);
+    });
+  }
+
+  // ============== 设置页 ==============
+  function renderSettings() {
+    Store.getSetting('ai', null).then(function (ai) {
+      ai = ai || {};
+      $('#set-baseUrl').value = ai.baseUrl || 'https://api.openai.com/v1';
+      $('#set-apiKey').value = ai.apiKey || '';
+      $('#set-model').value = ai.model || 'gpt-3.5-turbo';
+    });
+    Store.getSetting('user', null).then(function (u) {
+      u = u || {};
+      $('#set-userName').value = u.name || '';
+      $('#set-userRole').value = u.role || 'sales';
+    });
+  }
+
+  // ============== 事件绑定 ==============
+  function bindEvents() {
+    // tab
+    $all('.tab').forEach(function (t) {
+      t.addEventListener('click', function () { goPage(t.dataset.page); });
+    });
+
+    // 录音
+    $('#rec-btn').addEventListener('click', function () {
+      if (Recorder.isRecording()) {
+        stopAndAnalyze();
+      } else if ($('#record-text').value.trim() || Recorder.getText()) {
+        doAnalyze();
+      } else {
+        startRecording();
+      }
+    });
+
+    $('#analyze-text-btn').addEventListener('click', function () {
+      recordState.rawText = $('#record-text').value.trim();
+      doAnalyze();
+    });
+
+    $('#clear-btn').addEventListener('click', function () {
+      $('#record-text').value = '';
+      $('#record-customer').value = '';
+      $('#result-box').style.display = 'none';
+      $('#rec-stt-text').textContent = '';
+      $('#rec-time').textContent = '00:00';
+      $('#rec-status').textContent = '已清空';
+    });
+
+    // 历史
+    $('#history-list').addEventListener('click', function (ev) {
+      var btn = ev.target.closest('button');
+      if (!btn) return;
+      var id = parseInt(btn.dataset.id);
+      if (btn.dataset.act === 'view') viewHistory(id);
+      else if (btn.dataset.act === 'del') {
+        if (confirm('确认删除？')) {
+          Store.delAnalysis(id).then(function () { renderHistory(); toast('已删除', 'ok'); });
+        }
+      }
+    });
+    $('#clear-history-btn').addEventListener('click', function () {
+      if (confirm('清空所有历史？此操作不可恢复。')) {
+        Store.clearAnalyses().then(function () { renderHistory(); toast('已清空', 'ok'); });
+      }
+    });
+    $('#export-btn').addEventListener('click', function () {
+      Store.exportJSON().then(function (data) {
+        var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'yonyou-sales-export-' + Date.now() + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        toast('已导出', 'ok');
+      });
+    });
+
+    // 设置
+    $('#save-ai-btn').addEventListener('click', function () {
+      var ai = {
+        baseUrl: $('#set-baseUrl').value.trim() || 'https://api.openai.com/v1',
+        apiKey: $('#set-apiKey').value.trim(),
+        model: $('#set-model').value.trim() || 'gpt-3.5-turbo'
+      };
+      Store.setSetting('ai', ai).then(function () { toast('AI 配置已保存', 'ok'); });
+    });
+    $('#test-ai-btn').addEventListener('click', function () {
+      var ai = {
+        baseUrl: $('#set-baseUrl').value.trim(),
+        apiKey: $('#set-apiKey').value.trim(),
+        model: $('#set-model').value.trim() || 'gpt-3.5-turbo'
+      };
+      if (!ai.apiKey) { toast('请先填 API Key', 'warn'); return; }
+      toast('测试中...', 'ok');
+      AITranslator.analyzeRemote('我们公司财务月结要 5 天，想快点', ai).then(function (r) {
+        alert('✅ 测试成功\n\n' + r.plain);
+      }).catch(function (e) {
+        alert('❌ 测试失败：' + e.message);
+      });
+    });
+    $('#save-user-btn').addEventListener('click', function () {
+      Store.setSetting('user', {
+        name: $('#set-userName').value.trim(),
+        role: $('#set-userRole').value
+      }).then(function () { toast('已保存', 'ok'); });
+    });
+  }
+
+  return {
+    init: function () {
+      bindEvents();
+      resetRecordPage();
+    },
+    goPage: goPage,
+    renderResult: renderResult,
+    recordState: function () { return recordState; }
+  };
+})();
+
+
+/* === 启动 === */
+Store.init().then(function () {
+  App.init();
+});
+
+/* === INLINE_BUNDLE_END === */
+</script>
+</body>
+</html>
